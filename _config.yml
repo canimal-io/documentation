@@ -1,5 +1,5 @@
 title: Canimal Systems Documentation
-logo: /assets/img/logo.jpg
+logo: /assets/img/brandmark.png
 favicon_ico: /assets/img/favicon.ico
 description: Documentation for Canimal Systems
 theme: just-the-docs
@@ -8,7 +8,7 @@ aux_links:
   "Canimal Systems Inc.":
     - "//canimal.io"
 permalink: pretty
-color_scheme: dark
+color_scheme: light
 
 # Enable or disable the site search
 # Supports true (default) or false
@@ -17,7 +17,7 @@ search_enabled: true
 search:
   # Split pages into sections that can be searched individually
   # Supports 1 - 6, default: 2
-  heading_level: 2
+  heading_level: 6
   # Maximum amount of previews per search result
   # Default: 3
   previews: 3
