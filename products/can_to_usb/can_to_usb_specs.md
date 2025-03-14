@@ -1,6 +1,6 @@
 ---
 layout: default
-title: Canimal CAN <=> USB Transceiver
+title: Canimal CAN-USB Datasheet
 nav_order: 2
 ---
 # [Canimal CAN-USB Transceiver](https://canimal.io/product/canimal-can-usb/)

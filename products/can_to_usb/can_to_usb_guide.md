@@ -1,3 +1,8 @@
+---
+layout: default
+title: Canimal CAN-USB User Guide
+nav_order: 2
+---
 # Canimal CAN-USB User Guide
 
 ## Introduction
