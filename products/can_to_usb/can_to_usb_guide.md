@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Canimal CAN-USB User Guide
-nav_order: 2
+nav_order: 3
 ---
 # Canimal CAN-USB User Guide
 
