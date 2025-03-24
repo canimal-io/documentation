@@ -12,17 +12,6 @@ The Canimal CAN-USB adapter enables seamless communication between your computer
 
 ## 1. Setting Up CAN Interfaces
 
-### Windows
-1. **Install Drivers:**
-   - Download and install the Canimal CAN-USB driver from [Canimal.io](https://canimal.io/product/canimal-can-usb/).
-   - Plug in the device via USB-C and verify its detection in Device Manager.
-2. **Check Interface:**
-   - Open Command Prompt and run:
-     ```sh
-     mode
-     ```
-   - The device should appear as a COM port.
-
 ### Linux
 1. **Verify Device Recognition:**
    - Plug in the CAN-USB adapter and check using:
@@ -66,14 +55,6 @@ Set the bitrate to 500kbit/s (example):
 sudo ip link set can0 up type can bitrate 500000
 ```
 
-### Windows:
-- Use the provided GUI software or configure via Command Prompt with the following command:
-  ```sh
-  canimal_can_config.exe --interface can0 --bitrate 500000
-  ```
-
----
-
 ## 3. Setting Termination for Individual Interfaces
 
 Some CAN networks require termination. You can enable or disable termination using:
@@ -97,13 +78,6 @@ Use `cansend`:
 cansend can0 123#DEADBEEF
 ```
 
-### Windows:
-```sh
-canimal_can_send.exe --interface can0 --id 123 --data DEADBEEF
-```
-
----
-
 ## 5. Receiving Data Over the Interfaces
 
 ### Linux/macOS:
@@ -111,12 +85,6 @@ Use `candump`:
 ```sh
 candump can0
 ```
-
-### Windows:
-```sh
-canimal_can_receive.exe --interface can0
-```
-
 ---
 
 ## 6. Using Python Jupyter Notebook to Read and Log Data
