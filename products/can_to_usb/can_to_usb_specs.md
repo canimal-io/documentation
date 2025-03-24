@@ -74,4 +74,4 @@ nav_order: 2
 - **Length:** 104.50 mm (4.11 in)
 - **Height:** 36.50 mm (1.44 in)
 
-![Canimal CAN-USB Transceiver](../../assets/img/can-usb/can-usb-dimensions.jpg){: width="50%" }
+![Canimal CAN-USB Transceiver](/assets/img/can-usb/can-usb-dimensions.jpg)
