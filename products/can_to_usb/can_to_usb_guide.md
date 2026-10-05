@@ -57,16 +57,41 @@ sudo ip link set can0 up type can bitrate 500000
 
 ## 3. Setting Termination for Individual Interfaces
 
-Some CAN networks require termination. You can enable or disable termination using:
+### Linux (SocketCAN / gs_usb)
+
+A high-speed CAN bus normally needs exactly two 120 Ω terminators, one at each physical end of the bus, across CAN_H and CAN_L. Enable the adapter's terminator only when it occupies an end that has no other terminator. Leave it disabled at intermediate nodes or when that end already has an external terminator.
+
+**Prerequisites:** Use a Linux SocketCAN interface bound to `gs_usb`, iproute2 with CAN termination support, and firmware that advertises termination control. Replace `can0` below with the intended channel. Stop applications using that channel before taking it down; this interrupts communication. Do not change termination on an active bus.
+
+Check the driver-reported state and supported values first:
+
 ```sh
-sudo ip link set can0 down
-sudo ip link set can0 up type can bitrate 500000 termination on
+ip -details link show dev can0
 ```
 
-For Windows, enable termination via GUI settings or use:
+Look for `termination 0 [ 0, 120 ]` (disabled) or `termination 120 [ 0, 120 ]` (enabled). The bracketed values are the available settings, in ohms. If this field is absent, the values differ, or a command fails, stop and check the interface, kernel/driver, iproute2 and firmware versions before proceeding; do not assume termination changed.
+
+Choose **one** of these settings. Enable termination:
+
 ```sh
-canimal_can_config.exe --interface can0 --termination on
+sudo ip link set dev can0 down
+sudo ip link set dev can0 type can termination 120
+ip -details link show dev can0
 ```
+
+Or disable termination:
+
+```sh
+sudo ip link set dev can0 down
+sudo ip link set dev can0 type can termination 0
+ip -details link show dev can0
+```
+
+Confirm the readback is `termination 120 [ 0, 120 ]` or `termination 0 [ 0, 120 ]`, respectively. These commands leave the interface down and do not change its bitrate. After checking wiring, termination and the bus bitrate, resume communication with `sudo ip link set dev can0 up` if the channel is already configured for that bus.
+
+The host argument is a resistance in ohms, not `on`/`off` or the firmware's internal ON/OFF enum. In `gs_usb`, `120` enables termination and `0` disables it; `0` does not request a short circuit.
+
+**Verification scope:** This syntax and readback format are source-verified against [Linux 6.12 SocketCAN documentation](https://www.kernel.org/doc/html/v6.12/networking/can.html#switchable-termination-resistors), the [Linux 6.12 gs_usb driver](https://github.com/torvalds/linux/blob/v6.12/drivers/net/can/usb/gs_usb.c), and [iproute2 6.12.0](https://github.com/iproute2/iproute2/blob/v6.12.0/ip/iplink_can.c). Readback reports software state, not a resistance measurement. The fitted resistance and termination switching on shipping CAN-USB hardware remain unverified; these commands have not been hardware-tested here. This procedure is Linux-only and does not establish Windows or macOS termination support.
 
 ---
 
