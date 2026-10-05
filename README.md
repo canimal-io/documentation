@@ -26,3 +26,27 @@ See [framework decision, dependencies and rollback](review/ADR-001-framework.md)
 Documentation text and Canimal assets remain the intellectual property of Canimal Systems Inc.; this migration does not relicense them. `package.json` is deliberately UNLICENSED. Astro, Starlight and Pagefind are open-source dependencies with their own licenses. Their notices are retained in [THIRD-PARTY-NOTICES.txt](public/THIRD-PARTY-NOTICES.txt), distributed with the site. Starlight's visible attribution is retained.
 
 The former Jekyll presentation used [Just the Docs](https://github.com/just-the-docs/just-the-docs) under MIT. No former theme implementation is retained; this historical credit is preserved. Open-source framework licensing does not grant rights to Canimal documentation content.
+
+## CAN-USB cross-site regression (CSI-19)
+
+`npm test` verifies the built datasheet's named product link and preserved docs
+canonicals; `npm run test:browser` checks its keyboard activation. Website CI
+independently checks real built HTTP redirects (including trailing slash/query
+variants), product identity, canonical metadata, and unrelated 404s.
+
+After a local build, run the read-only cross-site check:
+
+```sh
+# Before the companion website compatibility release: check the already-live target.
+npm run test:links -- --canonical-only
+# Full check against a locally running website build/Worker:
+WEBSITE_ORIGIN=http://127.0.0.1:8787 npm run test:links
+# After both separately authorized releases: check live docs AND website.
+DOCS_ORIGIN=https://docs.canimal.io npm run test:links
+```
+
+The full check fails until the legacy redirects and product canonical metadata
+are released. `--canonical-only` explicitly skips those checks; it is not full
+acceptance. Live checks are intentionally separate from deterministic PR tests
+so either repository can merge/release first without making CI depend on an
+unreleased companion. See [release order and rollback](review/CSI-19.md).

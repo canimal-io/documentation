@@ -71,7 +71,8 @@ for (const job of Object.values(workflow.jobs)) for (const step of job.steps) if
 assert.equal(load(read('dist/404.html'))('meta[name="robots"]').attr('content'), 'noindex');
 const specs = load(read('dist/products/can_to_usb/can_to_usb_specs/index.html'));
 assert.ok(specs('main').text().includes('< 42 μs'));
-assert.ok(specs('a[href="https://canimal.io/product/canimal-can-usb/"]').length, 'CSI-19 remains a separate dependency');
+assert.equal(specs('main a[href="https://canimal.io/products"]').text(), 'Canimal CAN-USB Transceiver');
+assert.equal(specs('a[href*="/product/canimal-can-usb"]').length, 0, 'No legacy product links');
 console.log('PASS: parsed workflow deployment isolation, action pins, 404 noindex and rendered specification text');
 
 for (const [name, data] of Object.entries(baseline.pages)) {

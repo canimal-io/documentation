@@ -3,7 +3,7 @@ title: Canimal CAN-USB Datasheet
 description: Documentation for Canimal Systems
 slug: "products/can_to_usb/can_to_usb_specs"
 ---
-## [Canimal CAN-USB Transceiver](https://canimal.io/product/canimal-can-usb/)
+## [Canimal CAN-USB Transceiver](https://canimal.io/products)
 
 ## Technical Specifications
 
