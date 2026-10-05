@@ -14,7 +14,8 @@
     "preview": "astro preview --host 127.0.0.1",
     "test": "node scripts/check-site.mjs",
     "test:browser": "playwright test",
-    "test:reproducibility": "node scripts/check-reproducibility.mjs"
+    "test:reproducibility": "node scripts/check-reproducibility.mjs",
+    "test:links": "node scripts/check-product-journey.mjs"
   },
   "dependencies": {
     "@astrojs/starlight": "0.42.5",

@@ -103,3 +103,18 @@ test('long code remains readable without horizontal scrolling at narrow widths',
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
 });
+
+test('datasheet product link retains its accessible name and keyboard activation', async ({ page }) => {
+  // Intercept only the external destination; live identity/redirects use test:links.
+  await page.route('https://canimal.io/products', route => route.fulfill({
+    contentType: 'text/html', body: '<h1>Synthetic product destination</h1>',
+  }));
+  await page.goto(routes.datasheet);
+  const product = page.locator('#canimal-can-usb-transceiver').getByRole('link', { name: 'Canimal CAN-USB Transceiver', exact: true });
+  await expect(product).toHaveAttribute('href', 'https://canimal.io/products');
+  await product.focus();
+  await expect(product).toBeFocused();
+  expect(await product.evaluate(e => getComputedStyle(e).outlineStyle)).not.toBe('none');
+  await page.keyboard.press('Enter');
+  await expect(page).toHaveURL('https://canimal.io/products');
+});

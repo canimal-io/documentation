@@ -11,7 +11,7 @@
     },
     "products/can_to_usb/can_to_usb_specs.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "13786249c9299f87924ba05ca64478f846951bdbe666846d01f17c441a5bf96a",
+      "bodySha256": "7b2680a5dd822a4f7b29a321c4f2a37fea81e4eeabf1110c7ea0a53b715b2dd3",
       "legacyHeadingIds": [
         "canimal-can-usb-transceiver",
         "technical-specifications",
@@ -31,7 +31,8 @@
         "operating-temperature-range",
         "timestamp-resolution",
         "product-dimensions"
-      ]
+      ],
+      "reviewedChange": "CSI-19: product href only, legacy /product/canimal-can-usb/ to /products; all other body bytes unchanged from e77e657519b0354304c32ed614ac2a9db55786f4"
     },
     "products/can_to_usb/can_to_usb_guide.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
