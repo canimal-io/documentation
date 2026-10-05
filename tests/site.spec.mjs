@@ -91,3 +91,15 @@ test('theme selection persists and the page/search load without third-party requ
   expect(external).toEqual([]);
   expect((await new AxeBuilder({ page }).withTags(['wcag2a','wcag2aa','wcag21aa']).analyze()).violations).toEqual([]);
 });
+
+
+test('long code remains readable without horizontal scrolling at narrow widths', async ({ page }) => {
+  for (const width of [390, 768, 1440]) {
+    await page.setViewportSize({ width, height: 1000 });
+    await page.goto(routes.guide);
+    for (const pre of await page.locator('main pre').all()) {
+      expect(await pre.evaluate(e => e.scrollWidth <= e.clientWidth + 1)).toBe(true);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  }
+});

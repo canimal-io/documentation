@@ -8,6 +8,9 @@ export default defineConfig({
     title: 'Canimal Systems Documentation',
     description: 'Documentation for Canimal Systems',
     credits: true,
+    // Keep long examples readable without an unfocusable horizontal scroll region.
+    // Wrapping changes presentation only; copied code retains its original lines.
+    expressiveCode: { defaultProps: { wrap: true } },
     logo: { src: './public/assets/img/brandmark.png', replacesTitle: false },
     favicon: '/assets/img/favicon.ico',
     sidebar: [
