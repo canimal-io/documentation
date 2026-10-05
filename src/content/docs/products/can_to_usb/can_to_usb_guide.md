@@ -1,9 +1,9 @@
 ---
-layout: default
 title: Canimal CAN-USB User Guide
-nav_order: 3
+description: Documentation for Canimal Systems
+slug: "products/can_to_usb/can_to_usb_guide"
 ---
-# Canimal CAN-USB User Guide
+## Canimal CAN-USB User Guide
 
 ## Introduction
 The Canimal CAN-USB adapter enables seamless communication between your computer and CAN networks. This guide provides step-by-step instructions for setting up and using the device on Windows, Linux, and macOS.

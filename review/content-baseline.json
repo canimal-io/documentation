@@ -1,0 +1,64 @@
+{
+  "base": "626d753c7547944fee3af5c5696f358169bb87b4",
+  "csi18": "25a198e7ccda9ca5522b702148ec34862772bdb7",
+  "pages": {
+    "index.md": {
+      "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
+      "bodySha256": "0c6353a4a729a96cbead2ca153f3d98ba185939f68979c3a44ccb49d857a5a75",
+      "legacyHeadingIds": [
+        "canimal-systems-inc"
+      ]
+    },
+    "products/can_to_usb/can_to_usb_specs.md": {
+      "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
+      "bodySha256": "13786249c9299f87924ba05ca64478f846951bdbe666846d01f17c441a5bf96a",
+      "legacyHeadingIds": [
+        "canimal-can-usb-transceiver",
+        "technical-specifications",
+        "can-bus",
+        "channels",
+        "protocol-support",
+        "data-rates",
+        "payload-capacity",
+        "compatibility",
+        "connection-interface",
+        "ground-isolation",
+        "usb-connectivity",
+        "connector-type",
+        "data-transfer-rates",
+        "power-supply",
+        "termination",
+        "operating-temperature-range",
+        "timestamp-resolution",
+        "product-dimensions"
+      ]
+    },
+    "products/can_to_usb/can_to_usb_guide.md": {
+      "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
+      "bodySha256": "70a86cd224eeb82ae5147ba39e27cac10a08eb7742731e805be8c679ce875a48",
+      "legacyHeadingIds": [
+        "canimal-can-usb-user-guide",
+        "introduction",
+        "1-setting-up-can-interfaces",
+        "linux",
+        "macos",
+        "2-setting-bit-rates-for-can-interfaces",
+        "linuxmacos",
+        "3-setting-termination-for-individual-interfaces",
+        "4-sending-can-data-over-the-interfaces",
+        "linuxmacos-1",
+        "5-receiving-data-over-the-interfaces",
+        "linuxmacos-2",
+        "6-using-python-jupyter-notebook-to-read-and-log-data",
+        "install-dependencies",
+        "start-jupyter-notebook",
+        "example-python-code-for-logging-data"
+      ]
+    }
+  },
+  "assets": {
+    "assets/img/brandmark.png": "8ab4338fe09b1da656c0c85911c76b4462093dbf6607c24e2f89c113be42c88a",
+    "assets/img/favicon.ico": "37d16af813ccdfe1e0b28c5a5a8d788fc5cb178962d06f4bfaff0f2e7e992172",
+    "assets/img/can-usb/can-usb-dimensions.jpg": "08904fef3e179bb033d58834907e3033c3b44c0e0fb8ff47ad8277b150b1765d"
+  }
+}
