@@ -1,9 +1,9 @@
 ---
 title: Canimal Systems Documentation
-layout: home
-nav_order: 1
+description: Documentation for Canimal Systems
+slug: ""
 ---
-# [Canimal Systems Inc.](https://canimal.io)
+## [Canimal Systems Inc.](https://canimal.io)
 
 Products Documentation for Canimal Systems Inc.
 
