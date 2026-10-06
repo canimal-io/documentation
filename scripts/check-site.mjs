@@ -51,6 +51,10 @@ const guide = read('dist/products/can_to_usb/can_to_usb_guide/index.html');
 assert.ok(!load(guide)('pre').text().includes('termination on'));
 assert.ok(guide.includes('termination 120') && guide.includes('termination 0'));
 assert.ok(guide.includes('remain unverified'));
+assert.ok(guide.includes('Linux SocketCAN commands') && guide.includes('not macOS instructions'));
+for (const obsolete of ['brew install can-utils', 'sudo ifconfig can0 up', 'cansend can0', 'candump can0', "bustype='socketcan'"]) {
+  assert.ok(!guide.includes(obsolete), `Removed unqualified host instruction: ${obsolete}`);
+}
 assert.ok(existsSync('dist/404.html'));
 assert.ok(existsSync('dist/pagefind/pagefind.js'));
 console.log(`PASS: preserved prose/assets, 3 routes, CNAME/canonicals, landmarks, ${checked} internal links/assets/anchors, CSI-18, 404, local search`);
@@ -70,7 +74,10 @@ for (const step of workflow.jobs.check.steps) assert.ok(!/deploy-pages|configure
 for (const job of Object.values(workflow.jobs)) for (const step of job.steps) if (step.uses) assert.match(step.uses, /@[a-f0-9]{40}$/);
 assert.equal(load(read('dist/404.html'))('meta[name="robots"]').attr('content'), 'noindex');
 const specs = load(read('dist/products/can_to_usb/can_to_usb_specs/index.html'));
-assert.ok(specs('main').text().includes('< 42 μs'));
+assert.ok(specs('main').text().includes('does not currently publish qualified limits'));
+for (const unsupported of ['8 Mbit/s', '480 Mbit/s', '25–30 MB/s', '30–42 MB/s', '-40 °C to 125 °C', '< 42 μs']) {
+  assert.ok(!specs('main').text().includes(unsupported), `Contained unqualified specification: ${unsupported}`);
+}
 assert.equal(specs('main a[href="https://canimal.io/products"]').text(), 'Canimal CAN-USB Transceiver');
 assert.equal(specs('a[href*="/product/canimal-can-usb"]').length, 0, 'No legacy product links');
 console.log('PASS: parsed workflow deployment isolation, action pins, 404 noindex and rendered specification text');

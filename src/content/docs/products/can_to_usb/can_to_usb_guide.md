@@ -6,54 +6,31 @@ slug: "products/can_to_usb/can_to_usb_guide"
 ## Canimal CAN-USB User Guide
 
 ## Introduction
-The Canimal CAN-USB adapter enables seamless communication between your computer and CAN networks. This guide provides step-by-step instructions for setting up and using the device on Windows, Linux, and macOS.
+The Canimal CAN-USB is designed to connect a USB host to CAN networks. Complete setup, transmit, receive, and update procedures are not yet qualified for a shipping hardware/firmware revision and named host environment. This page retains a limited Linux SocketCAN termination-control reference because its host syntax is source-backed; it is not evidence that termination works on shipping CAN-USB hardware.
 
 ---
 
 ## 1. Setting Up CAN Interfaces
 
 ### Linux
-1. **Verify Device Recognition:**
-   - Plug in the CAN-USB adapter and check using:
-     ```sh
-     lsusb
-     dmesg | grep can
-     ```
-   - It should appear as `/dev/ttyUSBX` or `canX`.
-2. **Install CAN Utilities (if needed):**
-   ```sh
-   sudo apt install can-utils
-   ```
-3. **Bring up the interface:**
-   ```sh
-   sudo ip link set can0 up type can bitrate 500000
-   ```
+
+No release-specific Linux setup procedure is currently qualified. Confirm the hardware revision, firmware, Linux distribution/kernel, `gs_usb` driver, interface name, and CAN tooling before use.
 
 ### macOS
-1. **Check Device Detection:**
-   - Run:
-     ```sh
-     ioreg -p IOUSB
-     ```
-   - The Canimal CAN-USB should be listed.
-2. **Install Necessary Tools:**
-   ```sh
-   brew install can-utils
-   ```
-3. **Enable Interface:**
-   ```sh
-   sudo ifconfig can0 up
-   ```
+
+No macOS setup or driver procedure is currently qualified. Linux SocketCAN commands using `can-utils`, `can0`, or `ip link` are not macOS instructions and must not be used as evidence of macOS support.
+
+### Windows
+
+No Windows setup or driver procedure is currently qualified.
 
 ---
 
 ## 2. Setting Bit Rates for CAN Interfaces
 
 ### Linux/macOS:
-Set the bitrate to 500kbit/s (example):
-```sh
-sudo ip link set can0 up type can bitrate 500000
-```
+
+No cross-platform bit-rate procedure is currently qualified. Linux SocketCAN configuration does not establish a macOS procedure. Use only a release-specific procedure supplied for the identified host and product configuration.
 
 ## 3. Setting Termination for Individual Interfaces
 
@@ -98,45 +75,28 @@ The host argument is a resistance in ohms, not `on`/`off` or the firmware's inte
 ## 4. Sending CAN Data Over the Interfaces
 
 ### Linux/macOS:
-Use `cansend`:
-```sh
-cansend can0 123#DEADBEEF
-```
+
+No cross-platform transmit procedure is currently qualified. `cansend` is a Linux SocketCAN tool, not a macOS compatibility claim.
 
 ## 5. Receiving Data Over the Interfaces
 
 ### Linux/macOS:
-Use `candump`:
-```sh
-candump can0
-```
+
+No cross-platform receive procedure is currently qualified. `candump` is a Linux SocketCAN tool, not a macOS compatibility claim.
 ---
 
 ## 6. Using Python Jupyter Notebook to Read and Log Data
 
 ### Install Dependencies
-```sh
-pip install python-can jupyter
-```
+
+No release-specific Python package/version set or installation procedure is currently qualified.
 
 ### Start Jupyter Notebook
-```sh
-jupyter notebook
-```
+
+Notebook startup is outside the qualified CAN-USB procedure until the host backend and product configuration are identified and tested.
 
 ### Example Python Code for Logging Data
-```python
-import can
-import time
 
-bus = can.interface.Bus(channel='can0', bustype='socketcan')
-
-# Logging CAN data
-with open("log.txt", "w") as log_file:
-    for msg in bus:
-        log_entry = f"{msg.timestamp}: ID={msg.arbitration_id} DATA={msg.data.hex()}\n"
-        print(log_entry)
-        log_file.write(log_entry)
-```
+The previous example assumed the Linux `socketcan` backend and an interface named `can0`, while the section was presented without a Linux-only scope. It has been removed pending host testing and a release-specific example with prerequisites, expected results, and error handling.
 
 ---

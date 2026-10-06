@@ -7,71 +7,68 @@ slug: "products/can_to_usb/can_to_usb_specs"
 
 ## Technical Specifications
 
+### Qualification status
+
+Product-level electrical, environmental, compatibility, throughput, timing, and CAN FD limits are being revalidated against revision-controlled hardware records and test results. This page does not currently publish qualified limits. Contact Canimal Systems with the required hardware revision, firmware, host OS/driver/tool versions, channel, bus mode/rate, and operating conditions before purchase or integration.
+
 ## CAN Bus
 
 ### Channels
 
-- 3 CAN channels for versatile network configuration.
+- The firmware source configures three CAN channel interfaces. This is design intent, not evidence that a specific shipping hardware/firmware revision passed three-channel operation under load.
 
 ### Protocol Support
 
-- Full implementation of CAN protocol specification v2.0b, supporting both Standard and Extended frames.
+- Classic CAN and extended-frame behavior require release-specific host and hardware qualification. No CAN FD support claim is made by this page.
 
 ### Data Rates
 
-- **Standard CAN:** Up to 1 Mbit/s
-- **CAN2 Flexible Data Rate:** Up to 8 Mbit/s
+- No qualified product data-rate limit is currently published. Controller, transceiver, firmware configuration, wiring, bus loading, and host behavior all affect the supported rate.
 
 ### Payload Capacity
 
-- **Standard CAN:** Up to 8 bytes
-- **CAN2 Flexible Data Rate:** Up to 64 bytes
+- No qualified payload or CAN FD claim is currently published.
 
 ### Compatibility
 
-- High-speed CAN connection, ISO 11898-2 compliant.
+- ISO 11898-2 compliance has not been established here by a revision-specific conformance record.
 
 ### Connection Interface
 
-- D-Sub 9-pin connector in accordance with CiA® 106 standards.
+- Request the revision-specific connector pinout before wiring the product. The previous CiA® 106 claim remains unverified against a controlled drawing.
 
 ### Ground Isolation
 
-- Ground isolation available upon request; standard models feature non-isolated ground.
+- Request the revision-specific isolation configuration and ratings. No isolation option or rating is currently qualified by this page.
 
 ## USB Connectivity
 
 ### Connector Type
 
-- USB HS (High Speed) 2.0 Type-C for high-speed data transfer and power delivery.
+- The product design uses a USB-C host connection. USB signaling mode, power limits, and host compatibility require revision-specific confirmation.
 
 ### Data Transfer Rates
 
-- **Maximum Speed:** 480 Mbit/s (60 MB/s)
-- **Write Speed:** 25–30 MB/s
-- **Read Speed:** 30–42 MB/s
+- No qualified application-throughput or sustained-load rate is currently published. A USB interface signaling rate is not product application throughput.
 
 ### Power Supply
 
-- Powered via USB-C, eliminating the need for an external power source.
+- Request revision-specific input and power limits before integration.
 
 ### Termination
 
-- Software-selectable termination for flexible network configurations.
+- Firmware source contains per-channel termination-control paths. Fitted resistance, switching behavior, defaults, and supported release combinations remain unverified on shipping hardware. See the Linux-only source reference in the [user guide](../can_to_usb_guide/).
 
 ### Operating Temperature Range
 
-- -40 °C to 125 °C
-- Industrial and extended enclosure options available upon request.
+- No qualified product or enclosure operating-temperature range is currently published.
 
 ### Timestamp Resolution
 
-- < 42 μs
+- No qualified timestamp accuracy or resolution is currently published.
 
 ###  Product Dimensions
 
-- **Width:** 140.00 mm (5.51 in)
-- **Length:** 104.50 mm (4.11 in)
-- **Height:** 36.50 mm (1.44 in)
+- Request the controlled mechanical drawing for the applicable hardware and enclosure revision. The image below is a visual reference, not a qualified dimensional drawing.
 
 ![Canimal CAN-USB Transceiver](/assets/img/can-usb/can-usb-dimensions.jpg)

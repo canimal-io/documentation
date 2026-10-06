@@ -11,7 +11,7 @@
     },
     "products/can_to_usb/can_to_usb_specs.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "7b2680a5dd822a4f7b29a321c4f2a37fea81e4eeabf1110c7ea0a53b715b2dd3",
+      "bodySha256": "4f88ed094c1bb017802b42c1a36c6e2ff9c9b388cbe44ec9e7c5ed1be1c56ba4",
       "legacyHeadingIds": [
         "canimal-can-usb-transceiver",
         "technical-specifications",
@@ -32,11 +32,11 @@
         "timestamp-resolution",
         "product-dimensions"
       ],
-      "reviewedChange": "CSI-19: product href only, legacy /product/canimal-can-usb/ to /products; all other body bytes unchanged from e77e657519b0354304c32ed614ac2a9db55786f4"
+      "reviewedChange": "CSI-16/17: unsupported electrical, environmental, throughput, CAN FD, compliance, and mechanical claims removed or narrowed pending controlled records and qualification; CSI-19 product href retained"
     },
     "products/can_to_usb/can_to_usb_guide.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "70a86cd224eeb82ae5147ba39e27cac10a08eb7742731e805be8c679ce875a48",
+      "bodySha256": "544544b400c4c41a6ed851d7d224e537a2b7ae2b59d05244adb63be4071e4964",
       "legacyHeadingIds": [
         "canimal-can-usb-user-guide",
         "introduction",
@@ -54,7 +54,8 @@
         "install-dependencies",
         "start-jupyter-notebook",
         "example-python-code-for-logging-data"
-      ]
+      ],
+      "reviewedChange": "CSI-16/17: Linux SocketCAN commands removed from macOS/cross-platform presentation; unqualified setup, transmit, receive, and Python procedures narrowed; bounded Linux termination source reference retained"
     }
   },
   "assets": {
