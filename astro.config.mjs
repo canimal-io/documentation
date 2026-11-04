@@ -1,9 +1,20 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+import { isFixtureOutDir } from './src/lib/firmware.mjs';
+
+function outDir() {
+  const v = process.env.ASTRO_OUT_DIR;
+  if (!v) return './dist';
+  if (!isFixtureOutDir(v)) throw new Error('ASTRO_OUT_DIR must match ^dist-[a-z]+$');
+  return `./${v}`;
+}
+
 export default defineConfig({
   site: 'https://docs.canimal.io',
   trailingSlash: 'always',
+  // Only the fixture browser builds set this; the real site always builds to dist/.
+  outDir: outDir(),
   integrations: [starlight({
     title: 'Canimal Systems Documentation',
     description: 'Documentation for Canimal Systems',

@@ -120,11 +120,34 @@ test('datasheet product link retains its accessible name and keyboard activation
   await expect(page).toHaveURL('https://canimal.io/products');
 });
 
-test('firmware page shows the empty state and the update guide, linked from sidebar and datasheet', async ({ page }, info) => {
+test('firmware page follows the manifest and shows the update guide, linked from sidebar and datasheet', async ({ page }, info) => {
+  // Each project builds from its own manifest (playwright.config.mjs); read the same file here.
+  const manifest = JSON.parse(readFileSync(info.project.metadata.manifest, 'utf8'));
+  const { selectReleases, fileName } = await import('../src/lib/firmware.mjs');
+  const { latest, older } = selectReleases(manifest);
   await page.goto(routes.datasheet);
   await page.locator('main').getByRole('link', { name: 'CAN-USB firmware', exact: true }).click();
   await expect(page).toHaveURL(/can_to_usb\/firmware\/$/);
-  await expect(page.getByText('No public release yet; contact support for firmware updates.')).toBeVisible();
+  const main = page.locator('main');
+  const emptyState = main.getByText('No public release yet; contact support for firmware updates.');
+  const noStable = main.getByText('No stable release yet.');
+  if (latest) {
+    await expect(main.getByRole('heading', { name: `Latest stable release: ${latest.version}` })).toBeVisible();
+    await expect(main.getByRole('link', { name: fileName(latest.file) }).first()).toHaveAttribute('href', latest.file);
+    await expect(emptyState).toHaveCount(0);
+    await expect(noStable).toHaveCount(0);
+  } else if (older.length > 0) {
+    await expect(noStable).toBeVisible();
+    await expect(emptyState).toHaveCount(0);
+    await expect(main.getByRole('heading', { name: 'Latest stable release', exact: false })).toHaveCount(0);
+  } else {
+    await expect(emptyState).toBeVisible();
+    await expect(noStable).toHaveCount(0);
+  }
+  if (older.length > 0) {
+    await expect(main.getByRole('heading', { name: 'Other releases' })).toBeVisible();
+    for (const r of older) await expect(main.getByRole('cell', { name: r.version, exact: true })).toBeVisible();
+  }
   await expect(page.locator('main').getByText('dfu-util -d 1d50:606f,1d50:0005 -a 1 -R -D canimal-can-usb-<version>.signed.bin')).toBeVisible();
   await expect(page.locator('main')).not.toContainText('Zadig');
   await expect(page.locator('nav.sidebar').getByRole('link', { name: 'Firmware', exact: true })).toHaveAttribute('aria-current', 'page');
