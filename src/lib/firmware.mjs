@@ -5,10 +5,12 @@ import path from 'node:path';
 // Build-time overrides used only by the fixture browser builds (see playwright.config.mjs).
 export function isFixtureManifestPath(v) {
   if (typeof v !== 'string' || !v || path.isAbsolute(v)) return false;
+  // Reject any ".." segment outright, so the result cannot depend on the checkout folder's name.
+  if (v.split(/[\\/]/).includes('..')) return false;
   const rel = path.relative(path.resolve('tests/fixtures'), path.resolve(v));
   return rel !== '' && !rel.startsWith('..') && !path.isAbsolute(rel);
 }
-export const isFixtureOutDir = v => typeof v === 'string' && /^dist-[a-z]+$/.test(v);
+export const isFixtureOutDir = v => typeof v === 'string' && /^dist-[a-z]+$/.test(v) && !v.split(/[\\/]/).includes('..');
 
 export const fileName =p => p.slice(p.lastIndexOf('/') + 1);
 

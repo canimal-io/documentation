@@ -181,7 +181,7 @@ assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], n
 }
 // Build overrides: only fixture manifests and dist-<letters> output directories are accepted.
 assert.ok(isFixtureManifestPath('tests/fixtures/firmware/can-usb.json'));
-for (const v of ['src/data/firmware/can-usb.json', 'tests/fixtures/../../src/data/firmware/can-usb.json', '../documentation/tests/fixtures/x.json', path.resolve('tests/fixtures/firmware/can-usb.json'), 'tests/fixtures', 'tests/fixtures-evil/x.json', '', undefined]) assert.ok(!isFixtureManifestPath(v), `Should reject manifest ${v}`);
+for (const v of ['src/data/firmware/can-usb.json', 'tests/fixtures/../../src/data/firmware/can-usb.json', `../${path.basename(process.cwd())}/tests/fixtures/x.json`, '..\\tests\\fixtures\\x.json', 'tests\\fixtures\\..\\..\\src\\x.json',path.resolve('tests/fixtures/firmware/can-usb.json'), 'tests/fixtures', 'tests/fixtures-evil/x.json', '', undefined]) assert.ok(!isFixtureManifestPath(v), `Should reject manifest ${v}`);
 assert.ok(isFixtureOutDir('dist-fixture') && isFixtureOutDir('dist-dryrun'));
 for (const v of ['dist', 'dist-', 'dist-a/b', '../dist-x', 'dist-X', 'dist-a1', '/tmp/dist-x']) assert.ok(!isFixtureOutDir(v), `Should reject out dir ${v}`);
 // The dry-run-shaped manifest (single prerelease, bootloader 2.1.0) is schema-valid and has no stable release.
