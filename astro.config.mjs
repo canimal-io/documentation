@@ -18,6 +18,7 @@ export default defineConfig({
       { label: 'CAN-USB', items: [
         { label: 'Datasheet', link: '/products/can_to_usb/can_to_usb_specs/' },
         { label: 'User guide', link: '/products/can_to_usb/can_to_usb_guide/' },
+        { label: 'Firmware', link: '/products/can_to_usb/firmware/' },
       ] },
     ],
     customCss: ['./src/styles/custom.css'],

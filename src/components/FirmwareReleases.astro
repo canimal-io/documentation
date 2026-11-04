@@ -1,0 +1,47 @@
+---
+import manifest from '../data/firmware/can-usb.json';
+import { selectReleases, formatSize, fileName } from '../lib/firmware.mjs';
+const { latest, older } = selectReleases(manifest);
+---
+{!latest && older.length === 0 && (
+  <p><strong>No public release yet; contact support for firmware updates.</strong></p>
+)}
+{!latest && older.length > 0 && (
+  <p><strong>No stable release yet.</strong></p>
+)}
+{latest && (
+  <section class="firmware-latest" aria-labelledby="latest-release">
+    <h3 id="latest-release">Latest stable release: {latest.version}</h3>
+    <dl>
+      <dt>Released</dt><dd>{latest.date}</dd>
+      <dt>File</dt><dd><a href={latest.file} download>{fileName(latest.file)}</a></dd>
+      <dt>Size</dt><dd>{formatSize(latest.size)}</dd>
+      <dt>SHA-256</dt><dd><code>{latest.sha256}</code></dd>
+    </dl>
+    <p><a href={latest.notes}>Release notes</a></p>
+  </section>
+)}
+{older.length > 0 && (
+  <>
+    <h3 id="other-releases">Other releases</h3>
+    <div class="firmware-table">
+      <table>
+        <thead><tr><th>Version</th><th>Released</th><th>Channel</th><th>File</th><th>Size</th><th>SHA-256</th><th>Notes</th></tr></thead>
+        <tbody>
+          {older.map(r => (
+            <tr>
+              <td>{r.version}</td><td>{r.date}</td><td>{r.channel}</td>
+              <td><a href={r.file} download>{fileName(r.file)}</a></td>
+              <td>{formatSize(r.size)}</td><td><code>{r.sha256}</code></td><td><a href={r.notes}>Release notes</a></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
+<style>
+  .firmware-table { overflow-x: auto; }
+  code { overflow-wrap: anywhere; }
+  dt { font-weight: 600; }
+</style>

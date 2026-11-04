@@ -1,0 +1,69 @@
+---
+title: Canimal CAN-USB Firmware
+description: Firmware downloads and update guide for the Canimal CAN-USB.
+slug: "products/can_to_usb/firmware"
+---
+import FirmwareReleases from '../../../../components/FirmwareReleases.astro';
+
+## Downloads
+
+<FirmwareReleases />
+
+Windows users: contact support for firmware updates. These steps cover Linux and macOS.
+
+## Update guide
+
+### 1. Check the installed firmware version
+
+The device shows as "Canimal Systems CAN-USB". Firmware before 0.1.2 shows "Canimal Cheetah".
+
+On Linux:
+
+```
+lsusb -v -d 1d50:606f | grep bcdDevice
+```
+
+`bcdDevice` holds the major and minor version, so 1.2.0 shows as 1.02.
+
+On macOS, open System Information, select USB, select CAN-USB, and read "USB Product Version". It is shown in hex: `0x0001` is 0.1 and `0x0102` is 1.2.
+### 2. Verify the download
+
+Compare the output with the SHA-256 on this page. On Linux:
+
+```
+sha256sum canimal-can-usb-<version>.signed.bin
+```
+
+On macOS:
+
+```
+shasum -a 256 canimal-can-usb-<version>.signed.bin
+```
+
+### 3. Flash the firmware
+
+Install `dfu-util`, then run:
+
+```
+dfu-util -d 1d50:606f,1d50:0005 -a 1 -R -D canimal-can-usb-<version>.signed.bin
+```
+
+If several boards are attached, add `-S <serial>` to select one.
+
+Do not use `dfu-util -e`. It leaves the board in DFU mode.
+
+### 4. Confirm the new version
+
+The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 1 and check the version.
+
+The USB version shows major.minor only (1.2.0 shows as 1.02), so it changes for major and minor updates but not for patch updates, for example 0.1.2 to 0.1.3. Updating from firmware older than 0.1.2 also changes the device name from "Canimal Cheetah" to "Canimal Systems CAN-USB".
+
+On macOS, you may be asked to "Allow" the accessory after an update.
+
+### If something goes wrong
+
+If the download is interrupted, the board stays in update mode and keeps its current firmware. To finish the update, run the same `dfu-util` command again. To go back to the firmware it had, unplug the board and plug it back in. If the board doesn't come back either way, contact support.
+
+## Custom firmware
+
+Releases are signed with the public MCUboot development key on purpose, so you can build and flash your own firmware.

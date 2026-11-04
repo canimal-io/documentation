@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+import { readFileSync } from 'node:fs';
 
-const routes = { home: '/', datasheet: '/products/can_to_usb/can_to_usb_specs/', guide: '/products/can_to_usb/can_to_usb_guide/' };
+const routes = { home: '/', datasheet: '/products/can_to_usb/can_to_usb_specs/', guide: '/products/can_to_usb/can_to_usb_guide/', firmware: '/products/can_to_usb/firmware/' };
 for (const theme of ['light', 'dark']) {
   for (const [name, route] of Object.entries(routes)) {
     test(`${name} ${theme}: desktop accessibility and rendering`, async ({ page }, info) => {
@@ -117,4 +118,30 @@ test('datasheet product link retains its accessible name and keyboard activation
   expect(await product.evaluate(e => getComputedStyle(e).outlineStyle)).not.toBe('none');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL('https://canimal.io/products');
+});
+
+test('firmware page shows the empty state and the update guide, linked from sidebar and datasheet', async ({ page }, info) => {
+  await page.goto(routes.datasheet);
+  await page.locator('main').getByRole('link', { name: 'CAN-USB firmware', exact: true }).click();
+  await expect(page).toHaveURL(/can_to_usb\/firmware\/$/);
+  await expect(page.getByText('No public release yet; contact support for firmware updates.')).toBeVisible();
+  await expect(page.locator('main').getByText('dfu-util -d 1d50:606f,1d50:0005 -a 1 -R -D canimal-can-usb-<version>.signed.bin')).toBeVisible();
+  await expect(page.locator('main')).not.toContainText('Zadig');
+  await expect(page.locator('nav.sidebar').getByRole('link', { name: 'Firmware', exact: true })).toHaveAttribute('aria-current', 'page');
+  await page.screenshot({ path: info.outputPath('firmware.png'), fullPage: true });
+  await info.attach('firmware', { path: info.outputPath('firmware.png'), contentType: 'image/png' });
+});
+
+test('fixture release rows lay out without horizontal page overflow on mobile', async ({ page }) => {
+  const manifest = JSON.parse(readFileSync(new URL('./fixtures/firmware/can-usb.json', import.meta.url), 'utf8'));
+  const { selectReleases, formatSize, fileName } = await import('../src/lib/firmware.mjs');
+  const { latest, older } = selectReleases(manifest);
+  expect(latest.version).toBe('9.9.9');
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(routes.firmware);
+  // Inject markup shaped like the component output so the layout is checked with realistic rows.
+  await page.locator('.sl-markdown-content').evaluate((e, html) => { e.insertAdjacentHTML('afterbegin', html); }, `
+    <h3>Latest stable release: ${latest.version}</h3><p><a href="${latest.file}">${fileName(latest.file)}</a> ${formatSize(latest.size)} <code style="overflow-wrap:anywhere">${latest.sha256}</code></p>
+    <div style="overflow-x:auto"><table><thead><tr><th>Version</th><th>SHA-256</th></tr></thead><tbody>${older.map(r => `<tr><td>${r.version}</td><td><code>${r.sha256}</code></td></tr>`).join('')}</tbody></table></div>`);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

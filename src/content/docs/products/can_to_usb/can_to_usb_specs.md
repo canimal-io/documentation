@@ -75,3 +75,7 @@ slug: "products/can_to_usb/can_to_usb_specs"
 - **Height:** 36.50 mm (1.44 in)
 
 ![Canimal CAN-USB Transceiver](/assets/img/can-usb/can-usb-dimensions.jpg)
+
+### Firmware Updates
+
+- Downloads and the update guide: [CAN-USB firmware](/products/can_to_usb/firmware/).
