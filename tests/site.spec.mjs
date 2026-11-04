@@ -52,7 +52,8 @@ test('mobile navigation, image, no horizontal page overflow and 404', async ({ p
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/');
   await page.getByRole('button', { name: 'Menu', exact: true }).click();
-  await page.getByRole('link', { name: 'Datasheet', exact: true }).click();
+  // The overview also links each page from its content cards; use the menu's link.
+  await page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name: 'Datasheet', exact: true }).click();
   await expect(page).toHaveURL(/can_to_usb_specs\/$/);
   await expect(page.locator('main img')).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
