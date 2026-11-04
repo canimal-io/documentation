@@ -97,23 +97,38 @@ function checkManifest(manifest, publicDir) {
     assert.deepEqual(validateEntry(r), [], `Invalid manifest entry ${r.version}`);
     assert.ok(!seen.has(r.version), `Duplicate version ${r.version}`);
     seen.add(r.version);
-    const file = `${publicDir}/can-usb/${r.file}`;
+    // validateEntry confines file and notes to /firmware/can-usb/<version>/ (no "..").
+    const file = publicDir + r.file;
     assert.ok(existsSync(file), `Missing firmware file ${file}`);
+    assert.ok(existsSync(publicDir + r.notes), `Missing release notes ${r.notes}`);
     const bytes = readFileSync(file);
     assert.equal(bytes.length, r.size, `Size mismatch: ${r.file}`);
     assert.equal(hash(bytes), r.sha256, `SHA-256 mismatch: ${r.file}`);
   }
 }
 const manifest = JSON.parse(read('src/data/firmware/can-usb.json'));
-checkManifest(manifest, 'public/firmware');
+checkManifest(manifest, 'public');
 const fixture = JSON.parse(read('tests/fixtures/firmware/can-usb.json'));
 checkManifest(fixture, 'tests/fixtures/firmware/public');
+assert.ok(fixture.releases.every(r => r.hw_revisions && r.min_bootloader));
 const picked = selectReleases(fixture);
 assert.equal(picked.latest.version, '9.9.9', 'Latest stable release is not the newest stable version');
 assert.deepEqual(picked.older.map(r => r.version), ['10.0.0-rc1', '9.9.8']);
 // A tampered fixture must fail.
 assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], sha256: '0'.repeat(64) }] }, 'tests/fixtures/firmware/public'));
 assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], size: 1 }] }, 'tests/fixtures/firmware/public'));
+// Schema violations must be rejected.
+const bad = patch => () => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], ...patch }] }, 'tests/fixtures/firmware/public');
+const v0 = fixture.releases[0].version;
+for (const patch of [
+  { file: `/firmware/can-usb/${v0}/../9.9.9/canimal-can-usb-9.9.9.signed.bin` },
+  { file: '/firmware/other/x.signed.bin' },
+  { file: '/etc/passwd' },
+  { notes: `/firmware/can-usb/${v0}/../../../x.md` },
+  { notes: `/firmware/can-usb/${v0}/RELEASE_NOTES.txt` },
+  { hw_revisions: [] }, { hw_revisions: [1] }, { hw_revisions: undefined },
+  { min_bootloader: '0.1' }, { min_bootloader: undefined },
+]) assert.throws(bad(patch), undefined, `Should reject ${JSON.stringify(patch)}`);
 // The built page lists every manifest entry; with none it shows the empty state.
 const fw = load(read('dist/products/can_to_usb/firmware/index.html'))('main').text();
 for (const r of manifest.releases) assert.ok(fw.includes(r.version) && fw.includes(r.sha256), `Page omits ${r.version}`);

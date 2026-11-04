@@ -134,14 +134,14 @@ test('firmware page shows the empty state and the update guide, linked from side
 
 test('fixture release rows lay out without horizontal page overflow on mobile', async ({ page }) => {
   const manifest = JSON.parse(readFileSync(new URL('./fixtures/firmware/can-usb.json', import.meta.url), 'utf8'));
-  const { selectReleases, formatSize, FIRMWARE_URL_BASE } = await import('../src/lib/firmware.mjs');
+  const { selectReleases, formatSize, fileName } = await import('../src/lib/firmware.mjs');
   const { latest, older } = selectReleases(manifest);
   expect(latest.version).toBe('9.9.9');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(routes.firmware);
   // Inject markup shaped like the component output so the layout is checked with realistic rows.
   await page.locator('.sl-markdown-content').evaluate((e, html) => { e.insertAdjacentHTML('afterbegin', html); }, `
-    <h3>Latest stable release: ${latest.version}</h3><p><a href="${FIRMWARE_URL_BASE + latest.file}">${latest.file}</a> ${formatSize(latest.size)} <code style="overflow-wrap:anywhere">${latest.sha256}</code></p>
+    <h3>Latest stable release: ${latest.version}</h3><p><a href="${latest.file}">${fileName(latest.file)}</a> ${formatSize(latest.size)} <code style="overflow-wrap:anywhere">${latest.sha256}</code></p>
     <div style="overflow-x:auto"><table><thead><tr><th>Version</th><th>SHA-256</th></tr></thead><tbody>${older.map(r => `<tr><td>${r.version}</td><td><code>${r.sha256}</code></td></tr>`).join('')}</tbody></table></div>`);
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
