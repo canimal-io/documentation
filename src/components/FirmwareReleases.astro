@@ -6,6 +6,9 @@ const { latest, older } = selectReleases(manifest);
 {!latest && older.length === 0 && (
   <p><strong>No public release yet; contact support for firmware updates.</strong></p>
 )}
+{!latest && older.length > 0 && (
+  <p><strong>No stable release yet.</strong></p>
+)}
 {latest && (
   <section class="firmware-latest" aria-labelledby="latest-release">
     <h3 id="latest-release">Latest stable release: {latest.version}</h3>
@@ -20,7 +23,7 @@ const { latest, older } = selectReleases(manifest);
 )}
 {older.length > 0 && (
   <>
-    <h3 id="older-releases">Older releases</h3>
+    <h3 id="other-releases">Other releases</h3>
     <div class="firmware-table">
       <table>
         <thead><tr><th>Version</th><th>Released</th><th>Channel</th><th>File</th><th>Size</th><th>SHA-256</th><th>Notes</th></tr></thead>

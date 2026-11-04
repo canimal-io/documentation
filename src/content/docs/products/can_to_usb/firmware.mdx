@@ -23,7 +23,9 @@ On Linux:
 lsusb -v -d 1d50:606f | grep bcdDevice
 ```
 
-`bcdDevice` holds the major and minor version, so 1.2.0 shows as 1.02. On macOS, open System Information, select USB, and read the Version field of the device.
+`bcdDevice` holds the major and minor version, so 1.2.0 shows as 1.02.
+
+On macOS, open System Information, select USB, select CAN-USB, and read "USB Product Version". It is shown in hex: `0x0001` is 0.1 and `0x0102` is 1.2.
 ### 2. Verify the download
 
 Compare the output with the SHA-256 on this page. On Linux:
@@ -52,7 +54,11 @@ Do not use `dfu-util -e`. It leaves the board in DFU mode.
 
 ### 4. Confirm the new version
 
-The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 1 and check the version. On macOS, you may be asked to "Allow" the accessory after an update.
+The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 1 and check the version.
+
+The USB version shows major.minor only (1.2.0 shows as 1.02), so it changes for major and minor updates but not for patch updates, for example 0.1.2 to 0.1.3. Updating from firmware older than 0.1.2 also changes the device name from "Canimal Cheetah" to "Canimal Systems CAN-USB".
+
+On macOS, you may be asked to "Allow" the accessory after an update.
 
 ### If something goes wrong
 

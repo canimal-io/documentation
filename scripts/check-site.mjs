@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { load } from 'cheerio';
 import path from 'node:path';
-import { validateEntry, selectReleases } from '../src/lib/firmware.mjs';
+import { validateEntry, selectReleases, compareVersions, validDate } from '../src/lib/firmware.mjs';
 const read = p => readFileSync(p, 'utf8');
 const hash = b => createHash('sha256').update(b).digest('hex');
 const baseline = JSON.parse(read('review/content-baseline.json'));
@@ -117,6 +117,18 @@ assert.deepEqual(picked.older.map(r => r.version), ['10.0.0-rc1', '9.9.8']);
 // A tampered fixture must fail.
 assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], sha256: '0'.repeat(64) }] }, 'tests/fixtures/firmware/public'));
 assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], size: 1 }] }, 'tests/fixtures/firmware/public'));
+// Prerelease identifiers compare semver-style: numeric parts as numbers, so rc.10 > rc.9; a release beats its prerelease.
+assert.ok(compareVersions('1.0.0-rc.10', '1.0.0-rc.9') > 0);
+assert.ok(compareVersions('1.0.0-rc.2', '1.0.0-rc.10') < 0);
+assert.ok(compareVersions('1.0.0-rc.1', '1.0.0-rc') > 0);
+assert.ok(compareVersions('1.0.0-1', '1.0.0-alpha') < 0);
+assert.ok(compareVersions('1.0.0', '1.0.0-rc.10') > 0);
+assert.ok(compareVersions('0.1.10', '0.1.9') > 0);
+assert.ok(validDate('2024-02-29') && !validDate('2023-02-29') && !validDate('2026-13-45'));
+// Only prereleases: no latest stable release, all listed under other releases.
+const onlyPre = selectReleases({ releases: fixture.releases.filter(r => r.channel === 'prerelease') });
+assert.equal(onlyPre.latest, null);
+assert.deepEqual(onlyPre.older.map(r => r.version), ['10.0.0-rc1']);
 // Schema violations must be rejected.
 const bad = patch => () => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], ...patch }] }, 'tests/fixtures/firmware/public');
 const v0 = fixture.releases[0].version;
@@ -126,6 +138,10 @@ for (const patch of [
   { file: '/etc/passwd' },
   { notes: `/firmware/can-usb/${v0}/../../../x.md` },
   { notes: `/firmware/can-usb/${v0}/RELEASE_NOTES.txt` },
+  { notes: `/firmware/can-usb/${v0}/notes.md` },
+  { file: `/firmware/can-usb/${v0}/other.signed.bin` },
+  { file: `/firmware/can-usb/${v0}/canimal-can-usb-${v0}.signed.bin.sig` },
+  { date: '2026-13-45' }, { date: '2026-02-30' }, { date: '2026-1-5' },
   { hw_revisions: [] }, { hw_revisions: [1] }, { hw_revisions: undefined },
   { min_bootloader: '0.1' }, { min_bootloader: undefined },
 ]) assert.throws(bad(patch), undefined, `Should reject ${JSON.stringify(patch)}`);
