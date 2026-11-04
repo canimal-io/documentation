@@ -3,7 +3,7 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { load } from 'cheerio';
 import path from 'node:path';
-import { validateEntry, selectReleases, compareVersions, validDate } from '../src/lib/firmware.mjs';
+import { validateEntry, selectReleases, compareVersions, validDate, isFixtureManifestPath, isFixtureOutDir } from '../src/lib/firmware.mjs';
 const read = p => readFileSync(p, 'utf8');
 const hash = b => createHash('sha256').update(b).digest('hex');
 const baseline = JSON.parse(read('review/content-baseline.json'));
@@ -129,6 +129,70 @@ assert.ok(validDate('2024-02-29') && !validDate('2023-02-29') && !validDate('202
 const onlyPre = selectReleases({ releases: fixture.releases.filter(r => r.channel === 'prerelease') });
 assert.equal(onlyPre.latest, null);
 assert.deepEqual(onlyPre.older.map(r => r.version), ['10.0.0-rc1']);
+// Leak guard: published release notes and manifest text must not carry internal references.
+// Same rule as the firmware release workflow. An email address is allowed.
+// Public repositories that release text may name or link to, as org/repo. Everything else under
+// canimal-io, and any other GitHub PR, issue, compare, blob, tree or commit link, is rejected.
+const PUBLIC_REPOS = ['canimal-io/documentation'];
+// Standards and units that look like ticket ids but are not.
+const TICKET_PREFIX_ALLOWLIST = ['CAN', 'SHA', 'UTF', 'CRC', 'RS', 'ISO', 'IEC', 'AES', 'USB'];
+const isPublicRepo = slug => PUBLIC_REPOS.includes(slug.toLowerCase().replace(/\.git$/, ''));
+const leaks = text => {
+  const found = [];
+  if ([...text.matchAll(/\b([A-Za-z]{2,5})-[0-9]+\b/g)].some(m => !TICKET_PREFIX_ALLOWLIST.includes(m[1].toUpperCase()))) found.push('ticket id');
+  if ([...text.matchAll(/canimal-io\/([A-Za-z0-9._-]+)/gi)].some(m => !isPublicRepo(`canimal-io/${m[1]}`))) found.push('private repo name');
+  if ([...text.matchAll(/github\.com\/([A-Za-z0-9._-]+\/[A-Za-z0-9._-]+)\/(pull|issues|compare|blob|tree|commit)\//gi)].some(m => !isPublicRepo(m[1]))) found.push('GitHub link');
+  if (/(^|[^A-Za-z0-9._%+-])@[A-Za-z][A-Za-z0-9-]*/m.test(text)) found.push('@mention');
+  return found;
+};
+const strings = v => typeof v === 'string' ? [v] : Array.isArray(v) ? v.flatMap(strings) : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [];
+function checkLeaks(manifest, publicDir) {
+  const found = [];
+  for (const s of strings(manifest)) for (const what of leaks(s)) found.push(`manifest: ${what} in ${JSON.stringify(s)}`);
+  const notes = dir => existsSync(dir) ? walk(dir).filter(p => p.endsWith('/RELEASE_NOTES.md')) : [];
+  for (const f of notes(`${publicDir}/firmware`)) for (const what of leaks(read(f))) found.push(`${f}: ${what}`);
+  return found;
+}
+assert.deepEqual(checkLeaks(manifest, 'public'), [], 'Internal reference in published firmware text');
+assert.deepEqual(checkLeaks(fixture, 'tests/fixtures/firmware/public'), [], 'Fixture notes must pass the leak guard');
+assert.deepEqual(leaks('Fixes bug. Contact support@canimal.io or a.b+c@example.com.'), [], 'Email addresses are allowed');
+// Synthetic names only.
+assert.deepEqual(leaks('Fixes ABC-123 in the bootloader'), ['ticket id']);
+assert.deepEqual(leaks('Fixes abc-123 in the bootloader'), ['ticket id']);
+assert.deepEqual(leaks('SHA-256, UTF-8, RS-485, sha-1, crc-32, ISO-8859, IEC-61000, AES-128 and USB-2 are fine'), []);
+assert.deepEqual(leaks('Sampling at @500kbps works; mail a@b.example'), []);
+assert.deepEqual(leaks('See https://github.com/example-org/example-repo/pull/1'), ['GitHub link']);
+for (const kind of ['issues', 'compare', 'blob', 'tree', 'commit']) assert.deepEqual(leaks(`See https://github.com/example-org/example-repo/${kind}/x`), ['GitHub link'], kind);
+assert.deepEqual(leaks('See https://github.com/canimal-io/documentation/pull/1 and canimal-io/documentation'), [], 'Allowlisted public repo');
+assert.deepEqual(leaks('CAN-2.0B and can-2.0b are supported'), []);
+assert.deepEqual(leaks('Clone https://github.com/canimal-io/documentation.git or canimal-io/documentation.git'), [], 'Allowlisted repo with .git suffix');
+assert.deepEqual(leaks('See https://github.com/canimal-io/documentation.git/blob/main/x'), []);
+assert.deepEqual(leaks('canimal-io/example-private.git'), ['private repo name']);
+assert.deepEqual(leaks('rc-1 and fw-2'), ['ticket id'], 'Fails closed on short ticket-like words');
+assert.deepEqual(leaks('canimal-io/example-private'), ['private repo name']);
+assert.deepEqual(leaks('See https://github.com/canimal-io/example-private/blob/main/x'), ['private repo name', 'GitHub link']);
+assert.deepEqual(leaks('Thanks @someone for the fix'), ['@mention']);
+assert.deepEqual(leaks('@someone first'), ['@mention']);
+assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: '/firmware/can-usb/9.9.8/RELEASE_NOTES.md (ABC-123)' }] }, 'tests/fixtures/firmware/public').length, 1);
+{
+  // A planted notes file with a mention and a ticket id must be caught.
+  const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
+  const { tmpdir } = await import('node:os');
+  const tmp = mkdtempSync(path.join(tmpdir(), 'leak-'));
+  mkdirSync(`${tmp}/firmware/can-usb/1.0.0`, { recursive: true });
+  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, 'Thanks @someone, fixes ABC-123.\n');
+  assert.equal(checkLeaks({ releases: [] }, tmp).length, 2);
+  rmSync(tmp, { recursive: true });
+}
+// Build overrides: only fixture manifests and dist-<letters> output directories are accepted.
+assert.ok(isFixtureManifestPath('tests/fixtures/firmware/can-usb.json'));
+for (const v of ['src/data/firmware/can-usb.json', 'tests/fixtures/../../src/data/firmware/can-usb.json', `../${path.basename(process.cwd())}/tests/fixtures/x.json`, '..\\tests\\fixtures\\x.json', 'tests\\fixtures\\..\\..\\src\\x.json',path.resolve('tests/fixtures/firmware/can-usb.json'), 'tests/fixtures', 'tests/fixtures-evil/x.json', '', undefined]) assert.ok(!isFixtureManifestPath(v), `Should reject manifest ${v}`);
+assert.ok(isFixtureOutDir('dist-fixture') && isFixtureOutDir('dist-dryrun'));
+for (const v of ['dist', 'dist-', 'dist-a/b', '../dist-x', 'dist-X', 'dist-a1', '/tmp/dist-x']) assert.ok(!isFixtureOutDir(v), `Should reject out dir ${v}`);
+// The dry-run-shaped manifest (single prerelease, bootloader 2.1.0) is schema-valid and has no stable release.
+const dryrun = JSON.parse(read('tests/fixtures/firmware/can-usb-dryrun.json'));
+for (const r of dryrun.releases) assert.deepEqual(validateEntry(r), []);
+assert.equal(selectReleases(dryrun).latest, null);
 // Schema violations must be rejected.
 const bad = patch => () => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], ...patch }] }, 'tests/fixtures/firmware/public');
 const v0 = fixture.releases[0].version;

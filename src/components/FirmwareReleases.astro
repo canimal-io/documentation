@@ -1,6 +1,11 @@
 ---
-import manifest from '../data/firmware/can-usb.json';
-import { selectReleases, formatSize, fileName } from '../lib/firmware.mjs';
+import { readFileSync } from 'node:fs';
+import { selectReleases, formatSize, fileName, isFixtureManifestPath } from '../lib/firmware.mjs';
+// Browser tests build extra copies of the site from fixture manifests (see playwright.config.mjs).
+// The override is accepted only for files under tests/fixtures/, so a stray variable cannot change the real page.
+const override = process.env.FIRMWARE_MANIFEST;
+if (override && !isFixtureManifestPath(override)) throw new Error('FIRMWARE_MANIFEST must be under tests/fixtures/');
+const manifest = JSON.parse(readFileSync(override || 'src/data/firmware/can-usb.json', 'utf8'));
 const { latest, older } = selectReleases(manifest);
 ---
 {!latest && older.length === 0 && (
