@@ -135,8 +135,8 @@ assert.deepEqual(onlyPre.older.map(r => r.version), ['10.0.0-rc1']);
 // canimal-io, and any other GitHub PR, issue, compare, blob, tree or commit link, is rejected.
 const PUBLIC_REPOS = ['canimal-io/documentation'];
 // Standards and units that look like ticket ids but are not.
-const TICKET_PREFIX_ALLOWLIST = ['SHA', 'UTF', 'CRC', 'RS', 'ISO', 'IEC', 'AES', 'USB'];
-const isPublicRepo = slug => PUBLIC_REPOS.includes(slug.toLowerCase());
+const TICKET_PREFIX_ALLOWLIST = ['CAN', 'SHA', 'UTF', 'CRC', 'RS', 'ISO', 'IEC', 'AES', 'USB'];
+const isPublicRepo = slug => PUBLIC_REPOS.includes(slug.toLowerCase().replace(/\.git$/, ''));
 const leaks = text => {
   const found = [];
   if ([...text.matchAll(/\b([A-Za-z]{2,5})-[0-9]+\b/g)].some(m => !TICKET_PREFIX_ALLOWLIST.includes(m[1].toUpperCase()))) found.push('ticket id');
@@ -164,6 +164,11 @@ assert.deepEqual(leaks('Sampling at @500kbps works; mail a@b.example'), []);
 assert.deepEqual(leaks('See https://github.com/example-org/example-repo/pull/1'), ['GitHub link']);
 for (const kind of ['issues', 'compare', 'blob', 'tree', 'commit']) assert.deepEqual(leaks(`See https://github.com/example-org/example-repo/${kind}/x`), ['GitHub link'], kind);
 assert.deepEqual(leaks('See https://github.com/canimal-io/documentation/pull/1 and canimal-io/documentation'), [], 'Allowlisted public repo');
+assert.deepEqual(leaks('CAN-2.0B and can-2.0b are supported'), []);
+assert.deepEqual(leaks('Clone https://github.com/canimal-io/documentation.git or canimal-io/documentation.git'), [], 'Allowlisted repo with .git suffix');
+assert.deepEqual(leaks('See https://github.com/canimal-io/documentation.git/blob/main/x'), []);
+assert.deepEqual(leaks('canimal-io/example-private.git'), ['private repo name']);
+assert.deepEqual(leaks('rc-1 and fw-2'), ['ticket id'], 'Fails closed on short ticket-like words');
 assert.deepEqual(leaks('canimal-io/example-private'), ['private repo name']);
 assert.deepEqual(leaks('See https://github.com/canimal-io/example-private/blob/main/x'), ['private repo name', 'GitHub link']);
 assert.deepEqual(leaks('Thanks @someone for the fix'), ['@mention']);
