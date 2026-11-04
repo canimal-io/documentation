@@ -56,8 +56,7 @@ The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 
 
 ### If something goes wrong
 
-{/* verify: interrupted-download bench */}
-If the download is interrupted, the board keeps its current firmware: replug and run the command again. If the board doesn't come back, contact support.
+If the download is interrupted, the board stays in update mode and keeps its current firmware. To finish the update, run the same `dfu-util` command again. To go back to the firmware it had, unplug the board and plug it back in. If the board doesn't come back either way, contact support.
 
 ## Custom firmware
 
