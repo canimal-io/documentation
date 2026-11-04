@@ -1,0 +1,44 @@
+---
+title: Canimal Systems Documentation
+description: Datasheets, setup guides and firmware downloads for Canimal Systems products.
+slug: ""
+---
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+Datasheets, setup guides and firmware downloads for Canimal Systems hardware.
+
+## CAN-USB
+
+A USB-C adapter that connects a computer to CAN and CAN FD networks. On Linux it works with the SocketCAN `gs_usb` driver.
+
+- Three CAN channels: CAN 2.0B up to 1 Mbit/s, CAN FD up to 8 Mbit/s
+- USB 2.0 High Speed over USB-C, powered from USB
+- Software-selectable termination
+- D-Sub 9-pin connector (CiA 106)
+
+<CardGrid>
+  <LinkCard
+    title="Datasheet"
+    description="Channels, data rates, connectors, power and dimensions."
+    href="/products/can_to_usb/can_to_usb_specs/"
+  />
+  <LinkCard
+    title="User guide"
+    description="Bring up the CAN interfaces, set bit rates, and send and receive frames on Linux and macOS. Set termination on Linux."
+    href="/products/can_to_usb/can_to_usb_guide/"
+  />
+  <LinkCard
+    title="Firmware"
+    description="Download releases and update the adapter over USB."
+    href="/products/can_to_usb/firmware/"
+  />
+  <LinkCard
+    title="Product page"
+    description="The CAN-USB on canimal.io."
+    href="https://canimal.io/products"
+  />
+</CardGrid>
+
+## Canimal Systems Inc.
+
+Canimal Systems designs embedded hardware and firmware. For product information, visit [canimal.io](https://canimal.io).

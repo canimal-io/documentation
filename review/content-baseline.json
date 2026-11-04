@@ -2,12 +2,13 @@
   "base": "626d753c7547944fee3af5c5696f358169bb87b4",
   "csi18": "25a198e7ccda9ca5522b702148ec34862772bdb7",
   "pages": {
-    "index.md": {
+    "index.mdx": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "0c6353a4a729a96cbead2ca153f3d98ba185939f68979c3a44ccb49d857a5a75",
+      "bodySha256": "de447e7441f6ee1050839369c7cc159c330ddd7c607fbe4143845b4d94788e2b",
       "legacyHeadingIds": [
         "canimal-systems-inc"
-      ]
+      ],
+      "reviewedChange": "Overview rewritten as a product landing page (summary, key specifications, links to the datasheet, user guide and firmware pages and the canimal.io product page); converted to MDX for Starlight cards; the legacy canimal-systems-inc heading anchor is kept."
     },
     "products/can_to_usb/can_to_usb_specs.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",

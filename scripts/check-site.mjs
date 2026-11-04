@@ -77,7 +77,7 @@ assert.equal(specs('a[href*="/product/canimal-can-usb"]').length, 0, 'No legacy 
 console.log('PASS: parsed workflow deployment isolation, action pins, 404 noindex and rendered specification text');
 
 for (const [name, data] of Object.entries(baseline.pages)) {
-  const route = name === 'index.md' ? '' : name.replace(/\.mdx?$/, '') + '/';
+  const route = /^index\.mdx?$/.test(name) ? '' : name.replace(/\.mdx?$/, '') + '/';
   const $ = load(read(`dist/${route}index.html`));
   const ids = new Set($('[id]').toArray().map(e => $(e).attr('id')));
   for (const id of data.legacyHeadingIds) assert.ok(ids.has(id), `Lost legacy heading anchor: ${name}#${id}`);
