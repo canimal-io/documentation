@@ -1,0 +1,32 @@
+{
+  "product": "can-usb",
+  "releases": [
+    {
+      "version": "9.9.8",
+      "date": "2030-01-01",
+      "channel": "stable",
+      "file": "canimal-can-usb-9.9.8.signed.bin",
+      "size": 38,
+      "sha256": "36daca4a83901b5698b56be22c098ca6f355ca0cb31bde205e6940de9b48833b",
+      "notes": "Fixture older release."
+    },
+    {
+      "version": "10.0.0-rc1",
+      "date": "2030-03-01",
+      "channel": "prerelease",
+      "file": "canimal-can-usb-10.0.0-rc1.signed.bin",
+      "size": 41,
+      "sha256": "19b751e08a14359d68293ffcee2a57903a358cc22b36e10eaba2d73d6ae4b2b8",
+      "notes": "Fixture prerelease; must not be shown as latest."
+    },
+    {
+      "version": "9.9.9",
+      "date": "2030-02-01",
+      "channel": "stable",
+      "file": "canimal-can-usb-9.9.9.signed.bin",
+      "size": 36,
+      "sha256": "f48a530ffa5badbf8f86277ff48b369d7440e0d9d8474c578c0162b8f5d5b46a",
+      "notes": "Fixture latest stable release."
+    }
+  ]
+}

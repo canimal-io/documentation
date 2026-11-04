@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 import { load } from 'cheerio';
 import path from 'node:path';
+import { validateEntry, selectReleases } from '../src/lib/firmware.mjs';
 const read = p => readFileSync(p, 'utf8');
 const hash = b => createHash('sha256').update(b).digest('hex');
 const baseline = JSON.parse(read('review/content-baseline.json'));
@@ -17,7 +18,7 @@ for (const [name, digest] of Object.entries(baseline.assets)) {
 assert.equal(read('CNAME'), read('public/CNAME'));
 assert.equal(read('CNAME'), read('dist/CNAME'));
 assert.equal(read('dist/CNAME').trim(), 'docs.canimal.io');
-const routes = ['/', '/products/can_to_usb/can_to_usb_specs/', '/products/can_to_usb/can_to_usb_guide/'];
+const routes = ['/', '/products/can_to_usb/can_to_usb_specs/', '/products/can_to_usb/can_to_usb_guide/', '/products/can_to_usb/firmware/'];
 for (const route of routes) {
   const $ = load(read(`dist${route}index.html`));
   assert.equal($('link[rel="canonical"]').attr('href'), `https://docs.canimal.io${route}`);
@@ -53,7 +54,7 @@ assert.ok(guide.includes('termination 120') && guide.includes('termination 0'));
 assert.ok(guide.includes('remain unverified'));
 assert.ok(existsSync('dist/404.html'));
 assert.ok(existsSync('dist/pagefind/pagefind.js'));
-console.log(`PASS: preserved prose/assets, 3 routes, CNAME/canonicals, landmarks, ${checked} internal links/assets/anchors, CSI-18, 404, local search`);
+console.log(`PASS: preserved prose/assets, 4 routes, CNAME/canonicals, landmarks, ${checked} internal links/assets/anchors, CSI-18, 404, local search`);
 
 // Parse the workflow so accidental trigger/permission widening fails a normal PR check.
 const { load: yaml } = await import('js-yaml');
@@ -76,7 +77,7 @@ assert.equal(specs('a[href*="/product/canimal-can-usb"]').length, 0, 'No legacy 
 console.log('PASS: parsed workflow deployment isolation, action pins, 404 noindex and rendered specification text');
 
 for (const [name, data] of Object.entries(baseline.pages)) {
-  const route = name === 'index.md' ? '' : name.replace(/\.md$/, '') + '/';
+  const route = name === 'index.md' ? '' : name.replace(/\.mdx?$/, '') + '/';
   const $ = load(read(`dist/${route}index.html`));
   const ids = new Set($('[id]').toArray().map(e => $(e).attr('id')));
   for (const id of data.legacyHeadingIds) assert.ok(ids.has(id), `Lost legacy heading anchor: ${name}#${id}`);
@@ -86,3 +87,36 @@ console.log('PASS: all legacy content heading anchors retained');
 const { execFileSync } = await import('node:child_process');
 execFileSync(process.execPath, ['scripts/license-notices.mjs', '--check']);
 console.log('PASS: third-party notices match installed framework/client licenses');
+
+// Firmware manifest: every entry's file exists and its size and SHA-256 match.
+function checkManifest(manifest, publicDir) {
+  assert.equal(manifest.product, 'can-usb');
+  assert.ok(Array.isArray(manifest.releases));
+  const seen = new Set();
+  for (const r of manifest.releases) {
+    assert.deepEqual(validateEntry(r), [], `Invalid manifest entry ${r.version}`);
+    assert.ok(!seen.has(r.version), `Duplicate version ${r.version}`);
+    seen.add(r.version);
+    const file = `${publicDir}/can-usb/${r.file}`;
+    assert.ok(existsSync(file), `Missing firmware file ${file}`);
+    const bytes = readFileSync(file);
+    assert.equal(bytes.length, r.size, `Size mismatch: ${r.file}`);
+    assert.equal(hash(bytes), r.sha256, `SHA-256 mismatch: ${r.file}`);
+  }
+}
+const manifest = JSON.parse(read('src/data/firmware/can-usb.json'));
+checkManifest(manifest, 'public/firmware');
+const fixture = JSON.parse(read('tests/fixtures/firmware/can-usb.json'));
+checkManifest(fixture, 'tests/fixtures/firmware/public');
+const picked = selectReleases(fixture);
+assert.equal(picked.latest.version, '9.9.9', 'Latest stable release is not the newest stable version');
+assert.deepEqual(picked.older.map(r => r.version), ['10.0.0-rc1', '9.9.8']);
+// A tampered fixture must fail.
+assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], sha256: '0'.repeat(64) }] }, 'tests/fixtures/firmware/public'));
+assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], size: 1 }] }, 'tests/fixtures/firmware/public'));
+// The built page lists every manifest entry; with none it shows the empty state.
+const fw = load(read('dist/products/can_to_usb/firmware/index.html'))('main').text();
+for (const r of manifest.releases) assert.ok(fw.includes(r.version) && fw.includes(r.sha256), `Page omits ${r.version}`);
+if (manifest.releases.length === 0) assert.ok(fw.includes('No public release yet; contact support for firmware updates.'));
+assert.ok(!/dfu-util[^\n]* -e\b[^\n]*-D/.test(fw), 'Flash command must not use -e');
+console.log(`PASS: firmware manifest (${manifest.releases.length} releases) and fixture (${fixture.releases.length}) sizes/SHA-256, latest-stable ordering, page lists every entry`);

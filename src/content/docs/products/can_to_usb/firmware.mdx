@@ -1,0 +1,64 @@
+---
+title: Canimal CAN-USB Firmware
+description: Firmware downloads and update guide for the Canimal CAN-USB.
+slug: "products/can_to_usb/firmware"
+---
+import FirmwareReleases from '../../../../components/FirmwareReleases.astro';
+
+## Downloads
+
+<FirmwareReleases />
+
+Windows users: contact support for firmware updates. These steps cover Linux and macOS.
+
+## Update guide
+
+### 1. Check the installed firmware version
+
+The device shows as "Canimal Systems CAN-USB". Firmware before 0.1.2 shows "Canimal Cheetah".
+
+On Linux:
+
+```
+lsusb -v -d 1d50:606f | grep bcdDevice
+```
+
+`bcdDevice` holds the major and minor version, so 1.2.0 shows as 1.02. On macOS, open System Information, select USB, and read the Version field of the device.
+### 2. Verify the download
+
+Compare the output with the SHA-256 on this page. On Linux:
+
+```
+sha256sum canimal-can-usb-<version>.signed.bin
+```
+
+On macOS:
+
+```
+shasum -a 256 canimal-can-usb-<version>.signed.bin
+```
+
+### 3. Flash the firmware
+
+Install `dfu-util`, then run:
+
+```
+dfu-util -d 1d50:606f,1d50:0005 -a 1 -R -D canimal-can-usb-<version>.signed.bin
+```
+
+If several boards are attached, add `-S <serial>` to select one.
+
+Do not use `dfu-util -e`. It leaves the board in DFU mode.
+
+### 4. Confirm the new version
+
+The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 1 and check the version. On macOS, you may be asked to "Allow" the accessory after an update.
+
+### If something goes wrong
+
+{/* verify: interrupted-download bench */}
+If the download is interrupted, the board keeps its current firmware: replug and run the command again. If the board doesn't come back, contact support.
+
+## Custom firmware
+
+Releases are signed with the public MCUboot development key on purpose, so you can build and flash your own firmware.
