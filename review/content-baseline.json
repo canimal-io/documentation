@@ -37,25 +37,12 @@
     },
     "products/can_to_usb/can_to_usb_guide.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "70a86cd224eeb82ae5147ba39e27cac10a08eb7742731e805be8c679ce875a48",
+      "bodySha256": "5434e4b961801166b5d2c275c95d524589322c15f6a3cbd606018584eaf23eb6",
       "legacyHeadingIds": [
-        "canimal-can-usb-user-guide",
         "introduction",
-        "1-setting-up-can-interfaces",
-        "linux",
-        "macos",
-        "2-setting-bit-rates-for-can-interfaces",
-        "linuxmacos",
-        "3-setting-termination-for-individual-interfaces",
-        "4-sending-can-data-over-the-interfaces",
-        "linuxmacos-1",
-        "5-receiving-data-over-the-interfaces",
-        "linuxmacos-2",
-        "6-using-python-jupyter-notebook-to-read-and-log-data",
-        "install-dependencies",
-        "start-jupyter-notebook",
-        "example-python-code-for-logging-data"
-      ]
+        "linux"
+      ],
+      "reviewedChange": "Guide rewritten for Linux and classic CAN: adapter detection, connector-to-interface mapping and CiA 106 pinout, bit rates, the existing termination procedure (unchanged), sending and receiving, a two-channel self-test, python-can over SocketCAN, and a link to the firmware page. The incorrect macOS steps and the Jupyter section were removed; macOS, Windows and CAN FD will be added when supported. Anchors for removed or renumbered sections were dropped deliberately: canimal-can-usb-user-guide, 1-setting-up-can-interfaces, macos, 2-setting-bit-rates-for-can-interfaces, linuxmacos, 3-setting-termination-for-individual-interfaces, 4-sending-can-data-over-the-interfaces, linuxmacos-1, 5-receiving-data-over-the-interfaces, linuxmacos-2, 6-using-python-jupyter-notebook-to-read-and-log-data, install-dependencies, start-jupyter-notebook, example-python-code-for-logging-data."
     },
     "products/can_to_usb/firmware.mdx": {
       "sourceCommit": "new in ENG-24",
