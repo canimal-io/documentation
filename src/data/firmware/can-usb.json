@@ -1,4 +1,18 @@
 {
   "product": "can-usb",
-  "releases": []
+  "releases": [
+    {
+      "version": "0.1.2",
+      "channel": "stable",
+      "date": "2026-11-05",
+      "file": "/firmware/can-usb/0.1.2/canimal-can-usb-0.1.2.signed.bin",
+      "size": 60960,
+      "sha256": "c339052ce59d7ae0843ad861c7839e441c9d03afd61451f8416aa748361b79cb",
+      "hw_revisions": [
+        "A"
+      ],
+      "min_bootloader": "2.1.0",
+      "notes": "/firmware/can-usb/0.1.2/RELEASE_NOTES.md"
+    }
+  ]
 }
