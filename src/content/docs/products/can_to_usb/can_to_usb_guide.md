@@ -7,7 +7,7 @@ slug: "products/can_to_usb/can_to_usb_guide"
 
 The CAN-USB connects a computer to up to three CAN buses over USB-C. On Linux it uses the kernel's SocketCAN `gs_usb` driver, so no extra driver is needed: each channel appears as a network interface (`can0`, `can1`, `can2`).
 
-This guide covers Linux and classic CAN. Steps for macOS and Windows will be added when host software for them is released; until then, contact support. CAN FD setup will be added with the firmware release that enables it.
+This guide covers Linux and classic CAN. Steps for macOS and Windows will be added when host software for them is released; until then, [contact us](https://canimal.io). CAN FD setup will be added with the firmware release that enables it.
 
 ## Connectors and channels
 
@@ -19,7 +19,7 @@ The three D-Sub connectors are labelled CAN0, CAN1 and CAN2 on the board, from l
 | CAN1 | `can1` | `"can1"` |
 | CAN2 | `can2` | `"can2"` |
 
-The interface names assume the CAN-USB is the only CAN adapter on the computer. With other adapters attached, Linux numbers interfaces in the order the devices appear; check with `ip -details link show type can`.
+The interface names assume the CAN-USB is the only CAN adapter on the computer. With other adapters attached, Linux numbers interfaces in the order the devices appear; see which adapter each interface belongs to with `ls -l /sys/class/net/can*/device`.
 
 Each connector is a 9-pin D-Sub wired to CiA 106:
 
@@ -57,11 +57,11 @@ Set the bit rate while the interface is down, then bring it up. For 500 kbit/s o
 
 ```sh
 sudo ip link set can0 down
-sudo ip link set can0 type can bitrate 500000 restart-ms 100
+sudo ip link set can0 type can bitrate 500000
 sudo ip link set can0 up
 ```
 
-`restart-ms 100` makes the channel recover by itself 100 ms after a bus-off; leave it out to recover manually. Repeat for `can1` and `can2` with the bit rate of each bus. Every node on a bus must use the same bit rate.
+The adapter recovers from bus-off by itself; don't set `restart-ms`, which current kernels reject for this driver. Repeat for `can1` and `can2` with the bit rate of each bus. Every node on a bus must use the same bit rate.
 
 Check the state and error counters:
 
@@ -125,6 +125,8 @@ cansend can0 12345678#1122334455 # extended ID, 5 data bytes
 cansend can0 123#R               # remote (RTR) frame
 ```
 
+Receiving remote frames needs firmware 0.1.2 or later; see [CAN-USB firmware](/products/can_to_usb/firmware/) to check or update.
+
 A frame is only sent successfully when another node on the bus acknowledges it. With nothing else on the bus, nothing acknowledges the frame: the channel becomes error-passive and keeps retrying.
 
 ### Test with two channels
@@ -148,8 +150,12 @@ cansend can0 123#DEADBEEF
 [python-can](https://python-can.readthedocs.io/) works with the CAN-USB through SocketCAN. Bring the interface up with `ip` first, as above, then:
 
 ```sh
+python3 -m venv ~/can-venv
+. ~/can-venv/bin/activate
 pip install python-can
 ```
+
+On Debian and Ubuntu you can instead install the packaged version with `sudo apt install python3-can`.
 
 ```python
 import can
@@ -159,10 +165,13 @@ with can.Bus(interface="socketcan", channel="can0") as bus:
 
     # Print and log received frames until Ctrl+C.
     with open("can0.log", "w") as log:
-        for msg in bus:
-            line = f"{msg.timestamp:.6f} {msg.arbitration_id:X} {msg.data.hex()}"
-            print(line)
-            log.write(line + "\n")
+        try:
+            for msg in bus:
+                line = f"{msg.timestamp:.6f} {msg.arbitration_id:X} {msg.data.hex()}"
+                print(line)
+                log.write(line + "\n")
+        except KeyboardInterrupt:
+            pass
 ```
 
 ## Firmware updates
