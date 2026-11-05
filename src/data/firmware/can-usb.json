@@ -1,4 +1,18 @@
 {
   "product": "can-usb",
-  "releases": []
+  "releases": [
+    {
+      "version": "0.1.1-dry.41964086363.1",
+      "channel": "prerelease",
+      "date": "2026-11-05",
+      "file": "/firmware/can-usb/0.1.1-dry.41964086363.1/canimal-can-usb-0.1.1-dry.41964086363.1.signed.bin",
+      "size": 60960,
+      "sha256": "85b3ebd70a4f2663eba800a2c8a5a898b4df9d2e2918f69d9f3ad33df2241778",
+      "hw_revisions": [
+        "A"
+      ],
+      "min_bootloader": "2.1.0",
+      "notes": "/firmware/can-usb/0.1.1-dry.41964086363.1/RELEASE_NOTES.md"
+    }
+  ]
 }
