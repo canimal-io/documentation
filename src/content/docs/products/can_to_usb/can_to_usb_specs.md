@@ -20,12 +20,12 @@ slug: "products/can_to_usb/can_to_usb_specs"
 ### Data Rates
 
 - **Standard CAN:** Up to 1 Mbit/s
-- **CAN2 Flexible Data Rate:** Up to 8 Mbit/s
+- **CAN FD (CAN0 connector):** Up to 8 Mbit/s. CAN FD is enabled in an upcoming firmware update.
 
 ### Payload Capacity
 
 - **Standard CAN:** Up to 8 bytes
-- **CAN2 Flexible Data Rate:** Up to 64 bytes
+- **CAN FD (CAN0 connector):** Up to 64 bytes
 
 ### Compatibility
 
@@ -43,13 +43,11 @@ slug: "products/can_to_usb/can_to_usb_specs"
 
 ### Connector Type
 
-- USB HS (High Speed) 2.0 Type-C for high-speed data transfer and power delivery.
+- USB 2.0 High Speed over a USB-C connector, for data and power.
 
 ### Data Transfer Rates
 
-- **Maximum Speed:** 480 Mbit/s (60 MB/s)
-- **Write Speed:** 25–30 MB/s
-- **Read Speed:** 30–42 MB/s
+- USB 2.0 High Speed: 480 Mbit/s
 
 ### Power Supply
 
@@ -61,12 +59,12 @@ slug: "products/can_to_usb/can_to_usb_specs"
 
 ### Operating Temperature Range
 
-- -40 °C to 125 °C
+- 0 °C to 70 °C ambient
 - Industrial and extended enclosure options available upon request.
 
 ### Timestamp Resolution
 
-- < 42 μs
+- < 42 μs. Hardware timestamps are enabled in an upcoming firmware update.
 
 ###  Product Dimensions
 
