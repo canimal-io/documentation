@@ -158,7 +158,7 @@ assert.deepEqual(checkLeaks(fixture, 'tests/fixtures/firmware/public'), [], 'Fix
 assert.deepEqual(leaks('Fixes bug. Contact support@canimal.io or a.b+c@example.com.'), [], 'Email addresses are allowed');
 // Synthetic names only.
 const id = (prefix, rest) => prefix + rest; // keeps test ids out of the repo scan below
-for (const t of [id('ENG', '-123'), id('eng', '-123'), id('OPS', '-4'), id('CSI', '-19'), id('ENG', ' 7'), id('ENG', '123')]) assert.deepEqual(leaks(`Fixes ${t} in the bootloader`), ['ticket id'], t);
+for (const t of [id('ENG', '-99001'), id('eng', '-99002'), id('OPS', '-99003'), id('CSI', '-99004'), id('ENG', ' 99005'), id('ENG', '99006')]) assert.deepEqual(leaks(`Fixes ${t} in the bootloader`), ['ticket id'], t);
 assert.deepEqual(leaks('SHA-256, UTF-8, RS-485, sha-1, crc-32, ISO-8859, IEC-61000, AES-128 and USB-2 are fine'), []);
 assert.deepEqual(leaks('OBD-2, RT-1062, rc-1 and fw-2 are part numbers'), []);
 assert.deepEqual(leaks('Sampling at @500kbps works; mail a@b.example'), []);
@@ -173,14 +173,14 @@ assert.deepEqual(leaks('canimal-io/example-private'), ['private repo name']);
 assert.deepEqual(leaks('See https://github.com/canimal-io/example-private/blob/main/x'), ['private repo name', 'GitHub link']);
 assert.deepEqual(leaks('Thanks @someone for the fix'), ['@mention']);
 assert.deepEqual(leaks('@someone first'), ['@mention']);
-assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: `/firmware/can-usb/9.9.8/RELEASE_NOTES.md (${id('ENG', '-123')})` }] }, 'tests/fixtures/firmware/public').length, 1);
+assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: `/firmware/can-usb/9.9.8/RELEASE_NOTES.md (${id('ENG', '-99001')})` }] }, 'tests/fixtures/firmware/public').length, 1);
 {
   // A planted notes file with a mention and a ticket id must be caught.
   const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const tmp = mkdtempSync(path.join(tmpdir(), 'leak-'));
   mkdirSync(`${tmp}/firmware/can-usb/1.0.0`, { recursive: true });
-  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, `Thanks @someone, fixes ${id('ENG', '-123')}.\n`);
+  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, `Thanks @someone, fixes ${id('ENG', '-99001')}.\n`);
   assert.equal(checkLeaks({ releases: [] }, tmp).length, 2);
   rmSync(tmp, { recursive: true });
 }
