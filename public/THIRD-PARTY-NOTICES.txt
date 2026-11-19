@@ -3,7 +3,7 @@
 Canimal documentation content and assets remain proprietary. These dependency licenses do not relicense that content.
 
 ========================================================================
-astro 7.3.5 / LICENSE
+astro 7.4.13 / LICENSE
 ========================================================================
 MIT License
 
