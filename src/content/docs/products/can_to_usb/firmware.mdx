@@ -56,9 +56,15 @@ Do not use `dfu-util -e`. It leaves the board in DFU mode.
 
 The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 1 and check the version.
 
+From firmware 0.1.3, an update over USB is a trial. Keep the board plugged in for 30 seconds after the update finishes. If it is unplugged sooner, the previous firmware comes back at the next power-up. Update again to retry.
+
 The USB version shows major.minor only (1.2.0 shows as 1.02), so it changes for major and minor updates but not for patch updates, for example 0.1.2 to 0.1.3. Updating from firmware older than 0.1.2 also changes the device name from "Canimal Cheetah" to "Canimal Systems CAN-USB".
 
 On macOS, you may be asked to "Allow" the accessory after an update.
+
+### Going back to 0.1.2 or older
+
+From 0.1.3 or newer, flash the older firmware twice in a row, without unplugging the board in between. Firmware 0.1.2 and older can't make itself permanent, so a single flash is undone at the next power-up. The second flash, made while the older firmware is running, stays.
 
 ### If something goes wrong
 
@@ -66,4 +72,4 @@ If the download is interrupted, the board stays in update mode and keeps its cur
 
 ## Custom firmware
 
-Releases are signed with the public MCUboot development key on purpose, so you can build and flash your own firmware.
+Releases are signed with the public MCUboot development key on purpose, so you can build and flash your own firmware. From 0.1.3 on, an update is undone at the next power-up unless the new firmware confirms itself. Firmware built from the 0.1.3 source or newer does this the same way as a release. Other firmware has to mark itself as confirmed with MCUboot.
