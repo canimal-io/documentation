@@ -37,7 +37,7 @@
     },
     "products/can_to_usb/can_to_usb_guide.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "1055a76037943c89432090b0567aa2956dea2d7d9e26d69884a75ca568da9f94",
+      "bodySha256": "14da1fea2a1fe1a69a4bc30c34fd091eead1a863f886390ccd31f5dd24361742",
       "legacyHeadingIds": [
         "introduction",
         "linux"

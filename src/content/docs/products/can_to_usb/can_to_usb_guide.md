@@ -176,7 +176,7 @@ with can.Bus(interface="socketcan", channel="can0") as bus:
 
 ## CAN FD (CAN 0 only, firmware 0.1.3 and later)
 
-CAN FD works on CAN 0 (`can0`) only. CAN 1 and CAN 2 are classic CAN. The data phase can run up to 8 Mbit/s (tested at 1, 2, 5 and 8 Mbit/s on a short bus with two nodes). Every node on the bus must use the same data bit rate.
+CAN FD works on CAN 0 (`can0`) only. CAN 1 and CAN 2 are classic CAN. The data phase can run up to 8 Mbit/s (tested at 1, 2, 5 and 8 Mbit/s on a short bus with two nodes). Every node on the bus must use the same data bit rate. The 8 Mbit/s data rate needs the CAN-USB connected to a USB high-speed (USB 2.0, 480 Mbit/s) port.
 
 Set the arbitration bit rate and the data bit rate with `fd on`, for example 500 kbit/s and 2 Mbit/s:
 
