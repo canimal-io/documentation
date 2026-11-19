@@ -59,7 +59,7 @@
     },
     "products/can_to_usb/firmware.mdx": {
       "sourceCommit": "new in ENG-24",
-      "bodySha256": "0ea2ea6815e6d2c68e6181cf70784d8ee22d182e4759a6350d202321c4d99298",
+      "bodySha256": "ffc7e90dfd6482c6719478f91b956d4cff5a81129251f93dc4e45ae7278f1181",
       "legacyHeadingIds": [
         "downloads",
         "update-guide",
