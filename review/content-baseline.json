@@ -12,7 +12,7 @@
     },
     "products/can_to_usb/can_to_usb_specs.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "2f923f985150b9801333ae0521c9758178ec5c63684a8640c0ed01420cdd7068",
+      "bodySha256": "2a0b53c97b3a66dcf7a9f8284599923d9c162b600701d7651188c956adfb40f1",
       "legacyHeadingIds": [
         "canimal-can-usb-transceiver",
         "technical-specifications",
