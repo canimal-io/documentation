@@ -51,7 +51,7 @@ for (const file of walk('dist').filter(p => p.endsWith('.html'))) {
 const guide = read('dist/products/can_to_usb/can_to_usb_guide/index.html');
 assert.ok(!load(guide)('pre').text().includes('termination on'));
 assert.ok(guide.includes('termination 120') && guide.includes('termination 0'));
-assert.ok(guide.includes('remain unverified'));
+assert.ok(guide.includes('The fitted resistance was not measured'));
 assert.ok(existsSync('dist/404.html'));
 assert.ok(existsSync('dist/pagefind/pagefind.js'));
 console.log(`PASS: preserved prose/assets, 4 routes, CNAME/canonicals, landmarks, ${checked} internal links/assets/anchors, CSI-18, 404, local search`);

@@ -37,12 +37,12 @@
     },
     "products/can_to_usb/can_to_usb_guide.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "1b4db5d616c9dcafdba05b9f8389aa95b4def6592be8dea4898c026bde65a20e",
+      "bodySha256": "77f241f151227ed9de96a27345d0b7c7528841e20b038e3e95166a137550571c",
       "legacyHeadingIds": [
         "introduction",
         "linux"
       ],
-      "reviewedChange": "Guide rewritten for Linux and classic CAN: adapter detection, connector-to-interface mapping and CiA 106 pinout, bit rates, the existing termination procedure (unchanged), sending and receiving, a two-channel self-test, python-can over SocketCAN, and a link to the firmware page. The incorrect macOS steps and the Jupyter section were removed; macOS, Windows and CAN FD will be added when supported. Anchors for removed or renumbered sections were dropped deliberately: canimal-can-usb-user-guide, 1-setting-up-can-interfaces, macos, 2-setting-bit-rates-for-can-interfaces, linuxmacos, 3-setting-termination-for-individual-interfaces, 4-sending-can-data-over-the-interfaces, linuxmacos-1, 5-receiving-data-over-the-interfaces, linuxmacos-2, 6-using-python-jupyter-notebook-to-read-and-log-data, install-dependencies, start-jupyter-notebook, example-python-code-for-logging-data."
+      "reviewedChange": "Guide rewritten for Linux and classic CAN: adapter detection, connector-to-interface mapping and CiA 106 pinout, bit rates, the existing termination procedure (commands unchanged, now run on a CAN-USB), sending and receiving, a two-channel self-test, python-can over SocketCAN, and a link to the firmware page. The incorrect macOS steps and the Jupyter section were removed; macOS, Windows and CAN FD will be added when supported. Anchors for removed or renumbered sections were dropped deliberately: canimal-can-usb-user-guide, 1-setting-up-can-interfaces, macos, 2-setting-bit-rates-for-can-interfaces, linuxmacos, 3-setting-termination-for-individual-interfaces, 4-sending-can-data-over-the-interfaces, linuxmacos-1, 5-receiving-data-over-the-interfaces, linuxmacos-2, 6-using-python-jupyter-notebook-to-read-and-log-data, install-dependencies, start-jupyter-notebook, example-python-code-for-logging-data."
     },
     "products/can_to_usb/firmware.mdx": {
       "sourceCommit": "new in ENG-24",

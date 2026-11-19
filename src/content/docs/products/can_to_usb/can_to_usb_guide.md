@@ -11,7 +11,7 @@ This guide covers Linux and classic CAN. Steps for macOS and Windows will be add
 
 ## Connectors and channels
 
-The three D-Sub connectors are labelled CAN0, CAN1 and CAN2 on the board, from left to right. Each label matches its Linux interface and its termination LED.
+The three D-Sub connectors are labelled CAN0, CAN1 and CAN2 on the board. Each label matches its Linux interface.
 
 | Connector | Linux interface | python-can channel |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ lsusb -d 1d50:606f
 ip -brief link show type can
 ```
 
-`lsusb` shows one line with ID `1d50:606f`. `ip` lists `can0`, `can1` and `can2`, each `DOWN` until you bring it up.
+`lsusb` shows one line with ID `1d50:606f`, named "Geschwister Schneider CAN adapter" (the generic `gs_usb` name). `ip` lists `can0`, `can1` and `can2`, each `DOWN` until you bring it up.
 
 ### Install the CAN utilities
 
@@ -75,7 +75,7 @@ A healthy channel on a working bus reports `state ERROR-ACTIVE`.
 
 ### Linux (SocketCAN / gs_usb)
 
-A high-speed CAN bus normally needs exactly two 120 Ω terminators, one at each physical end of the bus, across CAN_H and CAN_L. Enable the adapter's terminator only when it occupies an end that has no other terminator. Leave it disabled at intermediate nodes or when that end already has an external terminator. The termination LED next to each connector shows its state.
+A high-speed CAN bus normally needs exactly two 120 Ω terminators, one at each physical end of the bus, across CAN_H and CAN_L. Enable the adapter's terminator only when it occupies an end that has no other terminator. Leave it disabled at intermediate nodes or when that end already has an external terminator.
 
 **Prerequisites:** Use a Linux SocketCAN interface bound to `gs_usb`, iproute2 with CAN termination support, and firmware that advertises termination control. Replace `can0` below with the intended channel. Stop applications using that channel before taking it down; this interrupts communication. Do not change termination on an active bus.
 
@@ -107,7 +107,7 @@ Confirm the readback is `termination 120 [ 0, 120 ]` or `termination 0 [ 0, 120 
 
 The host argument is a resistance in ohms, not `on`/`off` or the firmware's internal ON/OFF enum. In `gs_usb`, `120` enables termination and `0` disables it; `0` does not request a short circuit.
 
-**Verification scope:** This syntax and readback format are source-verified against [Linux 6.12 SocketCAN documentation](https://www.kernel.org/doc/html/v6.12/networking/can.html#switchable-termination-resistors), the [Linux 6.12 gs_usb driver](https://github.com/torvalds/linux/blob/v6.12/drivers/net/can/usb/gs_usb.c), and [iproute2 6.12.0](https://github.com/iproute2/iproute2/blob/v6.12.0/ip/iplink_can.c). Readback reports software state, not a resistance measurement. The fitted resistance and termination switching on shipping CAN-USB hardware remain unverified; these commands have not been hardware-tested here. This procedure is Linux-only and does not establish Windows or macOS termination support.
+**Verification scope:** This syntax and readback format are source-verified against [Linux 6.12 SocketCAN documentation](https://www.kernel.org/doc/html/v6.12/networking/can.html#switchable-termination-resistors), the [Linux 6.12 gs_usb driver](https://github.com/torvalds/linux/blob/v6.12/drivers/net/can/usb/gs_usb.c), and [iproute2 6.12.0](https://github.com/iproute2/iproute2/blob/v6.12.0/ip/iplink_can.c). Readback reports software state, not a resistance measurement. The commands were run on a CAN-USB on Debian 13 (kernel 6.18, iproute2 6.15): all three channels read back `0` and `120` as shown, the bitrate was unchanged, and any other value (for example `60`) is rejected. The fitted resistance was not measured. This procedure is Linux-only and does not establish Windows or macOS termination support.
 
 ## Sending and receiving frames
 
