@@ -191,9 +191,9 @@ The readback lists `<FD>` and a `dbitrate` line:
 
 ```text
 can <FD> state ERROR-ACTIVE (berr-counter tx 0 rx 0) restart-ms 0
-	  bitrate 500000 sample-point 0.875
-	  ...
-	  dbitrate 2000000 dsample-point 0.750
+  bitrate 500000 sample-point 0.875
+  ...
+  dbitrate 2000000 dsample-point 0.750
 ```
 
 The interface MTU changes from 16 to 72 so it can carry FD frames.
@@ -219,8 +219,13 @@ With python-can, open the bus with `fd=True` and send FD messages:
 import can
 
 with can.Bus(channel="can0", interface="socketcan", fd=True) as bus:
-    bus.send(can.Message(arbitration_id=0x123, data=bytes(range(64)), is_extended_id=False,
-                         is_fd=True, bitrate_switch=True))
+    bus.send(can.Message(
+        arbitration_id=0x123,
+        data=bytes(range(64)),
+        is_extended_id=False,
+        is_fd=True,
+        bitrate_switch=True,
+    ))
 ```
 
 ## Firmware updates
