@@ -1,61 +1,77 @@
 ---
 title: Canimal CAN-USB User Guide
-description: Documentation for Canimal Systems
+description: Set up the Canimal CAN-USB on Linux, set bit rates and termination, send and receive frames, and use python-can.
 slug: "products/can_to_usb/can_to_usb_guide"
 ---
-## Canimal CAN-USB User Guide
-
 ## Introduction
-The Canimal CAN-USB adapter enables seamless communication between your computer and CAN networks. This guide provides step-by-step instructions for setting up and using the device on Windows, Linux, and macOS.
 
----
+The CAN-USB connects a computer to up to three CAN buses over USB-C. On Linux it uses the kernel's SocketCAN `gs_usb` driver, so no extra driver is needed: each channel appears as a network interface (`can0`, `can1`, `can2`).
 
-## 1. Setting Up CAN Interfaces
+This guide covers Linux and classic CAN. Steps for macOS and Windows will be added when host software for them is released; until then, [contact us](https://canimal.io). For CAN FD, see [CAN FD](#can-fd-can-0-only-firmware-013-and-later).
 
-### Linux
-1. **Verify Device Recognition:**
-   - Plug in the CAN-USB adapter and check using:
-     ```sh
-     lsusb
-     dmesg | grep can
-     ```
-   - It should appear as `/dev/ttyUSBX` or `canX`.
-2. **Install CAN Utilities (if needed):**
-   ```sh
-   sudo apt install can-utils
-   ```
-3. **Bring up the interface:**
-   ```sh
-   sudo ip link set can0 up type can bitrate 500000
-   ```
+## Connectors and channels
 
-### macOS
-1. **Check Device Detection:**
-   - Run:
-     ```sh
-     ioreg -p IOUSB
-     ```
-   - The Canimal CAN-USB should be listed.
-2. **Install Necessary Tools:**
-   ```sh
-   brew install can-utils
-   ```
-3. **Enable Interface:**
-   ```sh
-   sudo ifconfig can0 up
-   ```
+The three D-Sub connectors are labelled CAN 0, CAN 1 and CAN 2 on the board. Each label matches its Linux interface.
 
----
+| Connector | Linux interface | python-can channel |
+| --- | --- | --- |
+| CAN 0 | `can0` | `"can0"` |
+| CAN 1 | `can1` | `"can1"` |
+| CAN 2 | `can2` | `"can2"` |
 
-## 2. Setting Bit Rates for CAN Interfaces
+The interface names assume the CAN-USB is the only CAN adapter on the computer. With other adapters attached, Linux numbers interfaces in the order the devices appear; see which adapter each interface belongs to with `ls -l /sys/class/net/can*/device`.
 
-### Linux/macOS:
-Set the bitrate to 500kbit/s (example):
+Each connector is a 9-pin D-Sub wired to CiA 106:
+
+| Pin | Signal |
+| --- | --- |
+| 2 | CAN_L |
+| 3 | CAN_GND |
+| 7 | CAN_H |
+
+## Linux
+
+### Check the adapter is detected
+
+Plug in the CAN-USB, then list it and its CAN interfaces:
+
 ```sh
-sudo ip link set can0 up type can bitrate 500000
+lsusb -d 1d50:606f
+ip -brief link show type can
 ```
 
-## 3. Setting Termination for Individual Interfaces
+`lsusb` shows one line with ID `1d50:606f`, named "Geschwister Schneider CAN adapter" (the generic `gs_usb` name). `ip` lists `can0`, `can1` and `can2`, each `DOWN` until you bring it up.
+
+### Install the CAN utilities
+
+`candump` and `cansend` come with `can-utils`:
+
+```sh
+sudo apt install can-utils    # Debian, Ubuntu
+sudo dnf install can-utils    # Fedora
+```
+
+## Setting bit rates for CAN interfaces
+
+Set the bit rate while the interface is down, then bring it up. For 500 kbit/s on `can0`:
+
+```sh
+sudo ip link set can0 down
+sudo ip link set can0 type can bitrate 500000
+sudo ip link set can0 up
+```
+
+The adapter recovers from bus-off by itself; don't set `restart-ms`, which current kernels reject for this driver. Repeat for `can1` and `can2` with the bit rate of each bus. Every node on a bus must use the same bit rate.
+
+Check the state and error counters:
+
+```sh
+ip -details -statistics link show can0
+```
+
+A healthy channel on a working bus reports `state ERROR-ACTIVE`.
+
+## Setting termination for individual interfaces
 
 ### Linux (SocketCAN / gs_usb)
 
@@ -91,52 +107,127 @@ Confirm the readback is `termination 120 [ 0, 120 ]` or `termination 0 [ 0, 120 
 
 The host argument is a resistance in ohms, not `on`/`off` or the firmware's internal ON/OFF enum. In `gs_usb`, `120` enables termination and `0` disables it; `0` does not request a short circuit.
 
-**Verification scope:** This syntax and readback format are source-verified against [Linux 6.12 SocketCAN documentation](https://www.kernel.org/doc/html/v6.12/networking/can.html#switchable-termination-resistors), the [Linux 6.12 gs_usb driver](https://github.com/torvalds/linux/blob/v6.12/drivers/net/can/usb/gs_usb.c), and [iproute2 6.12.0](https://github.com/iproute2/iproute2/blob/v6.12.0/ip/iplink_can.c). Readback reports software state, not a resistance measurement. The fitted resistance and termination switching on shipping CAN-USB hardware remain unverified; these commands have not been hardware-tested here. This procedure is Linux-only and does not establish Windows or macOS termination support.
+**Verification scope:** This syntax and readback format are source-verified against [Linux 6.12 SocketCAN documentation](https://www.kernel.org/doc/html/v6.12/networking/can.html#switchable-termination-resistors), the [Linux 6.12 gs_usb driver](https://github.com/torvalds/linux/blob/v6.12/drivers/net/can/usb/gs_usb.c), and [iproute2 6.12.0](https://github.com/iproute2/iproute2/blob/v6.12.0/ip/iplink_can.c). Readback reports software state, not a resistance measurement. The commands were run on a CAN-USB on Debian 13 (kernel 6.18, iproute2 6.15): all three channels read back `0` and `120` as shown, the bitrate was unchanged, and any other value (for example `60`) is rejected. The fitted resistance was not measured. This procedure is Linux-only and does not establish Windows or macOS termination support.
 
----
+## Sending and receiving frames
 
-## 4. Sending CAN Data Over the Interfaces
+Watch everything received on `can0`:
 
-### Linux/macOS:
-Use `cansend`:
+```sh
+candump can0
+```
+
+In another terminal, send frames:
+
+```sh
+cansend can0 123#DEADBEEF        # standard ID 0x123, 4 data bytes
+cansend can0 12345678#1122334455 # extended ID, 5 data bytes
+cansend can0 123#R               # remote (RTR) frame
+```
+
+Receiving remote frames needs firmware 0.1.2 or later; see [CAN-USB firmware](/products/can_to_usb/firmware/) to check or update.
+
+A frame is only sent successfully when another node on the bus acknowledges it. With nothing else on the bus, nothing acknowledges the frame: the channel becomes error-passive and keeps retrying.
+
+### Test with two channels
+
+To check the adapter without other equipment, connect CAN 0 and CAN 1 to each other (CAN_H to CAN_H, CAN_L to CAN_L, CAN_GND to CAN_GND) and enable termination on both. Bring both up at the same bit rate, then:
+
+```sh
+candump can1
+```
+
+and in another terminal:
+
 ```sh
 cansend can0 123#DEADBEEF
 ```
 
-## 5. Receiving Data Over the Interfaces
+`candump` prints the frame received on `can1`.
 
-### Linux/macOS:
-Use `candump`:
+## Using python-can
+
+[python-can](https://python-can.readthedocs.io/) works with the CAN-USB through SocketCAN. Bring the interface up with `ip` first, as above, then:
+
 ```sh
-candump can0
-```
----
-
-## 6. Using Python Jupyter Notebook to Read and Log Data
-
-### Install Dependencies
-```sh
-pip install python-can jupyter
+python3 -m venv ~/can-venv
+. ~/can-venv/bin/activate
+pip install python-can
 ```
 
-### Start Jupyter Notebook
-```sh
-jupyter notebook
-```
+On Debian and Ubuntu you can instead install the packaged version with `sudo apt install python3-can`.
 
-### Example Python Code for Logging Data
 ```python
 import can
-import time
 
-bus = can.interface.Bus(channel='can0', bustype='socketcan')
+with can.Bus(interface="socketcan", channel="can0") as bus:
+    bus.send(can.Message(arbitration_id=0x123, data=[0xDE, 0xAD, 0xBE, 0xEF], is_extended_id=False))
 
-# Logging CAN data
-with open("log.txt", "w") as log_file:
-    for msg in bus:
-        log_entry = f"{msg.timestamp}: ID={msg.arbitration_id} DATA={msg.data.hex()}\n"
-        print(log_entry)
-        log_file.write(log_entry)
+    # Print and log received frames until Ctrl+C.
+    with open("can0.log", "w") as log:
+        try:
+            for msg in bus:
+                line = f"{msg.timestamp:.6f} {msg.arbitration_id:X} {msg.data.hex()}"
+                print(line)
+                log.write(line + "\n")
+        except KeyboardInterrupt:
+            pass
 ```
 
----
+## CAN FD (CAN 0 only, firmware 0.1.3 and later)
+
+CAN FD works on CAN 0 (`can0`) only. CAN 1 and CAN 2 are classic CAN. The data phase can run up to 8 Mbit/s (tested at 1, 2, 5 and 8 Mbit/s on a short bus with two nodes). Every node on the bus must use the same data bit rate. The 8 Mbit/s data rate needs the CAN-USB connected to a USB high-speed (USB 2.0, 480 Mbit/s) port.
+
+Set the arbitration bit rate and the data bit rate with `fd on`, for example 500 kbit/s and 2 Mbit/s:
+
+```sh
+sudo ip link set can0 down
+sudo ip link set can0 type can bitrate 500000 dbitrate 2000000 fd on
+sudo ip link set can0 up
+ip -details link show can0
+```
+
+The readback lists `<FD>` and a `dbitrate` line:
+
+```text
+can <FD> state ERROR-ACTIVE (berr-counter tx 0 rx 0) restart-ms 0
+  bitrate 500000 sample-point 0.875
+  ...
+  dbitrate 2000000 dsample-point 0.750
+```
+
+The interface MTU changes from 16 to 72 so it can carry FD frames.
+
+Send an FD frame with `##`. The digit after it is the flags; `1` turns on the bit-rate switch (BRS), so the data phase runs at the data bit rate. A frame carries up to 64 bytes:
+
+```sh
+cansend can0 123##1DEADBEEF
+```
+
+Receive with `candump can0`. Add `-x` to see the BRS and ESI flags of received frames.
+
+On CAN 1 and CAN 2, `fd on` is refused:
+
+```text
+$ sudo ip link set can1 type can bitrate 500000 dbitrate 2000000 fd on
+Error: requested control mode fd not supported.
+```
+
+With python-can, open the bus with `fd=True` and send FD messages:
+
+```python
+import can
+
+with can.Bus(channel="can0", interface="socketcan", fd=True) as bus:
+    bus.send(can.Message(
+        arbitration_id=0x123,
+        data=bytes(range(64)),
+        is_extended_id=False,
+        is_fd=True,
+        bitrate_switch=True,
+    ))
+```
+
+## Firmware updates
+
+To check the firmware version or update it, see [CAN-USB firmware](/products/can_to_usb/firmware/).

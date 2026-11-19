@@ -20,12 +20,12 @@ slug: "products/can_to_usb/can_to_usb_specs"
 ### Data Rates
 
 - **Standard CAN:** Up to 1 Mbit/s
-- **CAN FD (CAN0 connector):** Up to 8 Mbit/s. CAN FD is enabled in an upcoming firmware update.
+- **CAN FD (CAN 0 connector):** Up to 8 Mbit/s, from firmware 0.1.3.
 
 ### Payload Capacity
 
 - **Standard CAN:** Up to 8 bytes
-- **CAN FD (CAN0 connector):** Up to 64 bytes
+- **CAN FD (CAN 0 connector):** Up to 64 bytes
 
 ### Compatibility
 
