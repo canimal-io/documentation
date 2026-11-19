@@ -1,6 +1,6 @@
-# CSI-33 validation record
+# Framework migration validation record
 
-For Callie / founder review. Local execution: 2026-10-05, Debian 13 x86_64, Node 24.21.0, npm 11.19.0, Astro 7.3.5, Starlight 0.42.5, Playwright 1.63.0 / Chromium 153.0.8010.12, axe 4.13.0.
+Local execution: 2026-10-05, Debian 13 x86_64, Node 24.21.0, npm 11.19.0, Astro 7.3.5, Starlight 0.42.5, Playwright 1.63.0 / Chromium 153.0.8010.12, axe 4.13.0.
 
 ## Acceptance evidence
 
@@ -52,7 +52,7 @@ These are local rendered previews, not production. CI also uploads the static si
 - Build emits framework warnings for absent optional i18n collection and 404 route precedence. English content and custom 404 output are explicitly validated; no warning is treated as a passed assertion.
 - npm reports esbuild's optional install script is not allowlisted; no blanket script approval was added. Clean installs/builds succeed using the resolved native package.
 - Automated contrast checks and screenshot inspection are a subset, not full accessibility compliance. No human assistive-technology test, Safari/Firefox, physical mobile-device check, or exhaustive contrast/zoom audit. No human manual keyboard sign-off is claimed; keyboard behavior is exercised through browser automation with visual inspection of its focus state.
-- Existing product claims and host setup commands remain unqualified; no hardware, CAN bus, resistance or OS-command execution. CSI-18 hardware qualification, CSI-19 external product-link repair, CSI-26 alert/old dependency PR reconciliation remain separate. The old product link is intentionally not repaired here.
+- Existing product claims and host setup commands remain unqualified; no hardware, CAN bus, resistance or OS-command execution. Hardware qualification of the Linux termination fix, the external product-link repair, and alert/old dependency PR reconciliation remain separate. The old product link is intentionally not repaired here.
 - Production Pages, DNS, repository settings and environment protection rules are not modified or tested. No deployment, workflow dispatch or merge. Owner must review framework/presentation, and verify environment protection before separately authorizing production release. Rollback is described in the ADR.
 
 Ruleset: 7354aaaaa548098a760f517fb34a7241c84e8764; layers: AGENTS.md, README.md, index.md, org/communication.md, org/engineering.md, projects/can-usb.md, repos/documentation.md

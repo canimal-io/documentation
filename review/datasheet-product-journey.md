@@ -1,6 +1,6 @@
-# CSI-19: datasheet-to-product journey
+# Datasheet-to-product journey
 
-For Callie / founder review. [Issue](https://linear.app/canimalsys/issue/CSI-19/cu-15-repair-the-datasheet-to-product-link).
+For review: repair of the datasheet-to-product link.
 No merge, deployment, manual workflow dispatch, domain/settings change or external message performed.
 
 ## Verified baseline (2026-10-05 UTC)

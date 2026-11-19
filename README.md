@@ -27,7 +27,7 @@ Documentation text and Canimal assets remain the intellectual property of Canima
 
 The former Jekyll presentation used [Just the Docs](https://github.com/just-the-docs/just-the-docs) under MIT. No former theme implementation is retained; this historical credit is preserved. Open-source framework licensing does not grant rights to Canimal documentation content.
 
-## CAN-USB cross-site regression (CSI-19)
+## CAN-USB cross-site regression
 
 `npm test` verifies the built datasheet's named product link and preserved docs
 canonicals; `npm run test:browser` checks its keyboard activation. Website CI
@@ -49,4 +49,4 @@ The full check fails until the legacy redirects and product canonical metadata
 are released. `--canonical-only` explicitly skips those checks; it is not full
 acceptance. Live checks are intentionally separate from deterministic PR tests
 so either repository can merge/release first without making CI depend on an
-unreleased companion. See [release order and rollback](review/CSI-19.md).
+unreleased companion. See [release order and rollback](review/datasheet-product-journey.md).
