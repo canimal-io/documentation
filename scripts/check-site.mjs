@@ -54,7 +54,7 @@ assert.ok(guide.includes('termination 120') && guide.includes('termination 0'));
 assert.ok(guide.includes('remain unverified'));
 assert.ok(existsSync('dist/404.html'));
 assert.ok(existsSync('dist/pagefind/pagefind.js'));
-console.log(`PASS: preserved prose/assets, 4 routes, CNAME/canonicals, landmarks, ${checked} internal links/assets/anchors, CSI-18, 404, local search`);
+console.log(`PASS: preserved prose/assets, 4 routes, CNAME/canonicals, landmarks, ${checked} internal links/assets/anchors, 404, local search`);
 
 // Parse the workflow so accidental trigger/permission widening fails a normal PR check.
 const { load: yaml } = await import('js-yaml');
@@ -157,7 +157,8 @@ assert.deepEqual(checkLeaks(manifest, 'public'), [], 'Internal reference in publ
 assert.deepEqual(checkLeaks(fixture, 'tests/fixtures/firmware/public'), [], 'Fixture notes must pass the leak guard');
 assert.deepEqual(leaks('Fixes bug. Contact support@canimal.io or a.b+c@example.com.'), [], 'Email addresses are allowed');
 // Synthetic names only.
-for (const t of ['ENG-123', 'eng-123', 'OPS-4', 'CSI-19', 'ENG 7', 'ENG123']) assert.deepEqual(leaks(`Fixes ${t} in the bootloader`), ['ticket id'], t);
+const id = (prefix, rest) => prefix + rest; // keeps test ids out of the repo scan below
+for (const t of [id('ENG', '-123'), id('eng', '-123'), id('OPS', '-4'), id('CSI', '-19'), id('ENG', ' 7'), id('ENG', '123')]) assert.deepEqual(leaks(`Fixes ${t} in the bootloader`), ['ticket id'], t);
 assert.deepEqual(leaks('SHA-256, UTF-8, RS-485, sha-1, crc-32, ISO-8859, IEC-61000, AES-128 and USB-2 are fine'), []);
 assert.deepEqual(leaks('OBD-2, RT-1062, rc-1 and fw-2 are part numbers'), []);
 assert.deepEqual(leaks('Sampling at @500kbps works; mail a@b.example'), []);
@@ -172,14 +173,14 @@ assert.deepEqual(leaks('canimal-io/example-private'), ['private repo name']);
 assert.deepEqual(leaks('See https://github.com/canimal-io/example-private/blob/main/x'), ['private repo name', 'GitHub link']);
 assert.deepEqual(leaks('Thanks @someone for the fix'), ['@mention']);
 assert.deepEqual(leaks('@someone first'), ['@mention']);
-assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: '/firmware/can-usb/9.9.8/RELEASE_NOTES.md (ENG-123)' }] }, 'tests/fixtures/firmware/public').length, 1);
+assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: `/firmware/can-usb/9.9.8/RELEASE_NOTES.md (${id('ENG', '-123')})` }] }, 'tests/fixtures/firmware/public').length, 1);
 {
   // A planted notes file with a mention and a ticket id must be caught.
   const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const tmp = mkdtempSync(path.join(tmpdir(), 'leak-'));
   mkdirSync(`${tmp}/firmware/can-usb/1.0.0`, { recursive: true });
-  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, 'Thanks @someone, fixes ENG-123.\n');
+  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, `Thanks @someone, fixes ${id('ENG', '-123')}.\n`);
   assert.equal(checkLeaks({ releases: [] }, tmp).length, 2);
   rmSync(tmp, { recursive: true });
 }
@@ -214,3 +215,17 @@ for (const r of manifest.releases) assert.ok(fw.includes(r.version) && fw.includ
 if (manifest.releases.length === 0) assert.ok(fw.includes('No public release yet; contact support for firmware updates.'));
 assert.ok(!/dfu-util[^\n]* -e\b[^\n]*-D/.test(fw), 'Flash command must not use -e');
 console.log(`PASS: firmware manifest (${manifest.releases.length} releases) and fixture (${fixture.releases.length}) sizes/SHA-256, latest-stable ordering, page lists every entry`);
+// Public repo: no tracker ticket ids or tracker links in any tracked text file.
+{
+  const skip = new Set(['package-lock.json', 'public/THIRD-PARTY-NOTICES.txt']);
+  const tracked = execFileSync('git', ['ls-files', '-z'], { encoding: 'utf8' }).split('\0').filter(f => f && !skip.has(f) && existsSync(f));
+  const hits = [];
+  for (const f of tracked) {
+    const bytes = readFileSync(f);
+    if (bytes.includes(0)) continue;
+    bytes.toString('utf8').split('\n').forEach((line, i) => {
+      if (/\b(ENG|OPS|CSI)[- _]?\d+\b/i.test(line) || /linear\.app/i.test(line)) hits.push(`${f}:${i + 1}`);
+    });
+  }
+  assert.deepEqual(hits, [], 'Ticket id or tracker link in a tracked file');
+}

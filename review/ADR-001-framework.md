@@ -1,4 +1,4 @@
-# CSI-33: static documentation framework
+# Static documentation framework
 
 Decision: Astro Starlight, 2026-10-05. No paid services or external search service.
 
@@ -30,14 +30,14 @@ Sources:
 
 ## Scope and governance
 
-The explicit CSI-33 instruction authorizes replacing the playbook's Jekyll/theme/Ruby mechanics, not its safety, claims, domain, ownership or deployment controls. No technical prose is cosmetically rewritten. Existing H1 Markdown becomes H2 because Starlight supplies the page H1; text and links remain intact. Explicit slugs preserve underscores and public directory routes. Original front-matter title/order/layout intent maps to title, ordered sidebar and Starlight layout. No original last-modified metadata existed.
+The explicit migration instruction authorizes replacing the playbook's Jekyll/theme/Ruby mechanics, not its safety, claims, domain, ownership or deployment controls. No technical prose is cosmetically rewritten. Existing H1 Markdown becomes H2 because Starlight supplies the page H1; text and links remain intact. Explicit slugs preserve underscores and public directory routes. Original front-matter title/order/layout intent maps to title, ordered sidebar and Starlight layout. No original last-modified metadata existed.
 
-PR #5 / CSI-18 was merged into main at `626d753c7547944fee3af5c5696f358169bb87b4`. This branch merges that main without rewriting history. The modify/delete conflict is resolved by retaining the corrected guide at `src/content/docs/products/can_to_usb/can_to_usb_guide.md` and removing the legacy source path. All page bodies match that main except the required first H1 → H2 transformation; preservation hashes are unchanged. This PR does not close CSI-18 or qualify hardware.
+The Linux termination fix (PR #5) was merged into main at `626d753c7547944fee3af5c5696f358169bb87b4`. This branch merges that main without rewriting history. The modify/delete conflict is resolved by retaining the corrected guide at `src/content/docs/products/can_to_usb/can_to_usb_guide.md` and removing the legacy source path. All page bodies match that main except the required first H1 → H2 transformation; preservation hashes are unchanged. This PR does not close the termination fix or qualify hardware.
 
-CSI-19 remains open: its known external datasheet-to-product link is preserved, not repaired here. CSI-26 remains open: removal of Ruby dependencies changes exposure but is not an alert-resolution decision; owners must reconcile alerts and existing PRs #2–4 separately. Existing OS, throughput, temperature and compatibility claims remain unqualified; this migration does not approve them.
+The datasheet link repair remains open: its known external datasheet-to-product link is preserved, not repaired here. The Ruby dependency advisories remain open: removal of Ruby dependencies changes exposure but is not an alert-resolution decision; owners must reconcile alerts and existing PRs #2–4 separately. Existing OS, throughput, temperature and compatibility claims remain unqualified; this migration does not approve them.
 
 ## Deployment and rollback
 
 PR and main-push runs build/test only, with contents:read. Only explicit workflow_dispatch + deploy=true + refs/heads/main can enter the Pages job; write/OIDC permissions are scoped to that job. No pull_request_target, secrets, remote fonts, analytics or hosted search. Actions pinned by SHA. Owner must verify github-pages environment protection/reviewers before a separately authorized release; this PR does not change settings or prove deployment behavior.
 
-Rollback is a reviewed revert of the migration on main, followed by a separately authorized build/release. Preserve CSI-18's corrected guide at its old source path when reverting. Do not blindly restore the old branch-deployable workflow: keep the main-only manual gate and read-only PR checks. The former Ruby lock contains known advisories (CSI-26), so a framework downgrade requires dependency/security review. DNS and CNAME never need to change.
+Rollback is a reviewed revert of the migration on main, followed by a separately authorized build/release. Preserve the corrected guide at its old source path when reverting. Do not blindly restore the old branch-deployable workflow: keep the main-only manual gate and read-only PR checks. The former Ruby lock contains known advisories, so a framework downgrade requires dependency/security review. DNS and CNAME never need to change.
