@@ -134,12 +134,12 @@ assert.deepEqual(onlyPre.older.map(r => r.version), ['10.0.0-rc1']);
 // Public repositories that release text may name or link to, as org/repo. Everything else under
 // canimal-io, and any other GitHub PR, issue, compare, blob, tree or commit link, is rejected.
 const PUBLIC_REPOS = ['canimal-io/documentation'];
-// Standards and units that look like ticket ids but are not.
-const TICKET_PREFIX_ALLOWLIST = ['CAN', 'SHA', 'UTF', 'CRC', 'RS', 'ISO', 'IEC', 'AES', 'USB'];
+// Internal ticket ids. Part numbers and standards (OBD-2, RT-1062, SHA-256) are fine.
+const TICKET_ID = /\b(ENG|OPS|CSI)[- ]?[0-9]+\b/i;
 const isPublicRepo = slug => PUBLIC_REPOS.includes(slug.toLowerCase().replace(/\.git$/, ''));
 const leaks = text => {
   const found = [];
-  if ([...text.matchAll(/\b([A-Za-z]{2,5})-[0-9]+\b/g)].some(m => !TICKET_PREFIX_ALLOWLIST.includes(m[1].toUpperCase()))) found.push('ticket id');
+  if (TICKET_ID.test(text)) found.push('ticket id');
   if ([...text.matchAll(/canimal-io\/([A-Za-z0-9._-]+)/gi)].some(m => !isPublicRepo(`canimal-io/${m[1]}`))) found.push('private repo name');
   if ([...text.matchAll(/github\.com\/([A-Za-z0-9._-]+\/[A-Za-z0-9._-]+)\/(pull|issues|compare|blob|tree|commit)\//gi)].some(m => !isPublicRepo(m[1]))) found.push('GitHub link');
   if (/(^|[^A-Za-z0-9._%+-])@[A-Za-z][A-Za-z0-9-]*/m.test(text)) found.push('@mention');
@@ -157,9 +157,9 @@ assert.deepEqual(checkLeaks(manifest, 'public'), [], 'Internal reference in publ
 assert.deepEqual(checkLeaks(fixture, 'tests/fixtures/firmware/public'), [], 'Fixture notes must pass the leak guard');
 assert.deepEqual(leaks('Fixes bug. Contact support@canimal.io or a.b+c@example.com.'), [], 'Email addresses are allowed');
 // Synthetic names only.
-assert.deepEqual(leaks('Fixes ABC-123 in the bootloader'), ['ticket id']);
-assert.deepEqual(leaks('Fixes abc-123 in the bootloader'), ['ticket id']);
+for (const t of ['ENG-123', 'eng-123', 'OPS-4', 'CSI-19', 'ENG 7', 'ENG123']) assert.deepEqual(leaks(`Fixes ${t} in the bootloader`), ['ticket id'], t);
 assert.deepEqual(leaks('SHA-256, UTF-8, RS-485, sha-1, crc-32, ISO-8859, IEC-61000, AES-128 and USB-2 are fine'), []);
+assert.deepEqual(leaks('OBD-2, RT-1062, rc-1 and fw-2 are part numbers'), []);
 assert.deepEqual(leaks('Sampling at @500kbps works; mail a@b.example'), []);
 assert.deepEqual(leaks('See https://github.com/example-org/example-repo/pull/1'), ['GitHub link']);
 for (const kind of ['issues', 'compare', 'blob', 'tree', 'commit']) assert.deepEqual(leaks(`See https://github.com/example-org/example-repo/${kind}/x`), ['GitHub link'], kind);
@@ -168,19 +168,18 @@ assert.deepEqual(leaks('CAN-2.0B and can-2.0b are supported'), []);
 assert.deepEqual(leaks('Clone https://github.com/canimal-io/documentation.git or canimal-io/documentation.git'), [], 'Allowlisted repo with .git suffix');
 assert.deepEqual(leaks('See https://github.com/canimal-io/documentation.git/blob/main/x'), []);
 assert.deepEqual(leaks('canimal-io/example-private.git'), ['private repo name']);
-assert.deepEqual(leaks('rc-1 and fw-2'), ['ticket id'], 'Fails closed on short ticket-like words');
 assert.deepEqual(leaks('canimal-io/example-private'), ['private repo name']);
 assert.deepEqual(leaks('See https://github.com/canimal-io/example-private/blob/main/x'), ['private repo name', 'GitHub link']);
 assert.deepEqual(leaks('Thanks @someone for the fix'), ['@mention']);
 assert.deepEqual(leaks('@someone first'), ['@mention']);
-assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: '/firmware/can-usb/9.9.8/RELEASE_NOTES.md (ABC-123)' }] }, 'tests/fixtures/firmware/public').length, 1);
+assert.deepEqual(checkLeaks({ ...fixture, releases: [{ ...fixture.releases[0], notes: '/firmware/can-usb/9.9.8/RELEASE_NOTES.md (ENG-123)' }] }, 'tests/fixtures/firmware/public').length, 1);
 {
   // A planted notes file with a mention and a ticket id must be caught.
   const { mkdtempSync, mkdirSync, writeFileSync, rmSync } = await import('node:fs');
   const { tmpdir } = await import('node:os');
   const tmp = mkdtempSync(path.join(tmpdir(), 'leak-'));
   mkdirSync(`${tmp}/firmware/can-usb/1.0.0`, { recursive: true });
-  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, 'Thanks @someone, fixes ABC-123.\n');
+  writeFileSync(`${tmp}/firmware/can-usb/1.0.0/RELEASE_NOTES.md`, 'Thanks @someone, fixes ENG-123.\n');
   assert.equal(checkLeaks({ releases: [] }, tmp).length, 2);
   rmSync(tmp, { recursive: true });
 }
