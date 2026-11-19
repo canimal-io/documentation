@@ -56,7 +56,7 @@ Do not use `dfu-util -e`. It leaves the board in DFU mode.
 
 The board restarts and re-enumerates, which takes about 10 seconds. Repeat step 1 and check the version.
 
-From firmware 0.1.3, an update over USB is a trial. Keep the board plugged in for 30 seconds after the update finishes. If it is unplugged sooner, the previous firmware comes back at the next power-up. Update again to retry.
+From firmware 0.1.3, an update over USB is a trial. Keep the board plugged in for 30 seconds after the update finishes (on macOS, after you click "Allow"). If it is unplugged sooner, the previous firmware comes back at the next power-up. Update again to retry.
 
 The USB version shows major.minor only (1.2.0 shows as 1.02), so it changes for major and minor updates but not for patch updates, for example 0.1.2 to 0.1.3. Updating from firmware older than 0.1.2 also changes the device name from "Canimal Cheetah" to "Canimal Systems CAN-USB".
 
