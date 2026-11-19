@@ -7,17 +7,17 @@ slug: "products/can_to_usb/can_to_usb_guide"
 
 The CAN-USB connects a computer to up to three CAN buses over USB-C. On Linux it uses the kernel's SocketCAN `gs_usb` driver, so no extra driver is needed: each channel appears as a network interface (`can0`, `can1`, `can2`).
 
-This guide covers Linux and classic CAN. Steps for macOS and Windows will be added when host software for them is released; until then, [contact us](https://canimal.io). CAN FD setup will be added with the firmware release that enables it.
+This guide covers Linux and classic CAN. Steps for macOS and Windows will be added when host software for them is released; until then, [contact us](https://canimal.io). For CAN FD, see [CAN FD](#can-fd-can-0-only-firmware-013-and-later).
 
 ## Connectors and channels
 
-The three D-Sub connectors are labelled CAN0, CAN1 and CAN2 on the board. Each label matches its Linux interface.
+The three D-Sub connectors are labelled CAN 0, CAN 1 and CAN 2 on the board. Each label matches its Linux interface.
 
 | Connector | Linux interface | python-can channel |
 | --- | --- | --- |
-| CAN0 | `can0` | `"can0"` |
-| CAN1 | `can1` | `"can1"` |
-| CAN2 | `can2` | `"can2"` |
+| CAN 0 | `can0` | `"can0"` |
+| CAN 1 | `can1` | `"can1"` |
+| CAN 2 | `can2` | `"can2"` |
 
 The interface names assume the CAN-USB is the only CAN adapter on the computer. With other adapters attached, Linux numbers interfaces in the order the devices appear; see which adapter each interface belongs to with `ls -l /sys/class/net/can*/device`.
 
@@ -131,7 +131,7 @@ A frame is only sent successfully when another node on the bus acknowledges it. 
 
 ### Test with two channels
 
-To check the adapter without other equipment, connect CAN0 and CAN1 to each other (CAN_H to CAN_H, CAN_L to CAN_L, CAN_GND to CAN_GND) and enable termination on both. Bring both up at the same bit rate, then:
+To check the adapter without other equipment, connect CAN 0 and CAN 1 to each other (CAN_H to CAN_H, CAN_L to CAN_L, CAN_GND to CAN_GND) and enable termination on both. Bring both up at the same bit rate, then:
 
 ```sh
 candump can1
@@ -172,6 +172,55 @@ with can.Bus(interface="socketcan", channel="can0") as bus:
                 log.write(line + "\n")
         except KeyboardInterrupt:
             pass
+```
+
+## CAN FD (CAN 0 only, firmware 0.1.3 and later)
+
+CAN FD works on CAN 0 (`can0`) only. CAN 1 and CAN 2 are classic CAN. The data phase can run up to 8 Mbit/s (tested at 1, 2, 5 and 8 Mbit/s on a short bus with two nodes). Every node on the bus must use the same data bit rate.
+
+Set the arbitration bit rate and the data bit rate with `fd on`, for example 500 kbit/s and 2 Mbit/s:
+
+```sh
+sudo ip link set can0 down
+sudo ip link set can0 type can bitrate 500000 dbitrate 2000000 fd on
+sudo ip link set can0 up
+ip -details link show can0
+```
+
+The readback lists `<FD>` and a `dbitrate` line:
+
+```text
+can <FD> state ERROR-ACTIVE (berr-counter tx 0 rx 0) restart-ms 0
+	  bitrate 500000 sample-point 0.875
+	  ...
+	  dbitrate 2000000 dsample-point 0.750
+```
+
+The interface MTU changes from 16 to 72 so it can carry FD frames.
+
+Send an FD frame with `##`. The digit after it is the flags; `1` turns on the bit-rate switch (BRS), so the data phase runs at the data bit rate. A frame carries up to 64 bytes:
+
+```sh
+cansend can0 123##1DEADBEEF
+```
+
+Receive with `candump can0`. Add `-x` to see the BRS and ESI flags of received frames.
+
+On CAN 1 and CAN 2, `fd on` is refused:
+
+```text
+$ sudo ip link set can1 type can bitrate 500000 dbitrate 2000000 fd on
+Error: requested control mode fd not supported.
+```
+
+With python-can, open the bus with `fd=True` and send FD messages:
+
+```python
+import can
+
+with can.Bus(channel="can0", interface="socketcan", fd=True) as bus:
+    bus.send(can.Message(arbitration_id=0x123, data=bytes(range(64)), is_extended_id=False,
+                         is_fd=True, bitrate_switch=True))
 ```
 
 ## Firmware updates
