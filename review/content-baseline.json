@@ -12,7 +12,7 @@
     },
     "products/can_to_usb/can_to_usb_specs.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",
-      "bodySha256": "2a0b53c97b3a66dcf7a9f8284599923d9c162b600701d7651188c956adfb40f1",
+      "bodySha256": "3c4b34f6c8ce995811f6db89935df861cbe7acc388080d466fa41206382db4f1",
       "legacyHeadingIds": [
         "canimal-can-usb-transceiver",
         "technical-specifications",
@@ -33,7 +33,7 @@
         "timestamp-resolution",
         "product-dimensions"
       ],
-      "reviewedChange": "Product href only, legacy /product/canimal-can-usb/ to /products; all other body bytes unchanged from e77e657519b0354304c32ed614ac2a9db55786f4; appended a Firmware Updates section linking to the firmware page; specification corrections: operating temperature 0 °C to 70 °C ambient (limited by the processor grade), the USB read/write speed lines removed (not meaningful for a CAN adapter), the CAN FD channel named by its connector label (CAN0), \"power delivery\" reworded, and notes that CAN FD and hardware timestamps are enabled in an upcoming firmware update"
+      "reviewedChange": "Product href only, legacy /product/canimal-can-usb/ to /products; all other body bytes unchanged from e77e657519b0354304c32ed614ac2a9db55786f4; appended a Firmware Updates section linking to the firmware page; specification corrections: operating temperature 0 °C to 70 °C ambient (limited by the processor grade), the USB read/write speed lines removed (not meaningful for a CAN adapter), the CAN FD channel named by its connector label (CAN0), \"power delivery\" reworded, and notes that CAN FD and hardware timestamps are enabled in an upcoming firmware update; added a link to the PDF datasheet built by datasheet/build.sh under Technical Specifications"
     },
     "products/can_to_usb/can_to_usb_guide.md": {
       "sourceCommit": "626d753c7547944fee3af5c5696f358169bb87b4",

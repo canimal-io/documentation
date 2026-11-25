@@ -7,6 +7,8 @@ slug: "products/can_to_usb/can_to_usb_specs"
 
 ## Technical Specifications
 
+[Download the PDF datasheet](/assets/pdf/canimal-can-usb-datasheet.pdf), with the user guide.
+
 ## CAN Bus
 
 ### Channels

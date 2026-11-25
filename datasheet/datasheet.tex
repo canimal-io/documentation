@@ -1,0 +1,250 @@
+% Canimal CAN-USB: Datasheet and User Guide. Built by datasheet/build.sh; run from the repo root.
+% Chapters come from the docs pages; every fact here must be on those pages or in the firmware manifest.
+\documentclass[11pt,letterpaper]{report}
+
+% Cover picture. Replace with a product photo when one exists.
+\newcommand\CoverImage{public/assets/img/can-usb/can-usb-dimensions.jpg}
+\newcommand\Brandmark{public/assets/img/brandmark.png}
+\newcommand\DocTitle{Canimal CAN-USB}
+\newcommand\DocSubtitle{Datasheet and User Guide}
+\input{datasheet/build/version.tex}
+\newcommand\VersionLine{Document version \DocCommit\ (\DocDate) \textperiodcentered\ Latest firmware \FirmwareLatest}
+
+\usepackage[margin=0.9in,top=1in,bottom=1in,headheight=14pt]{geometry}
+\usepackage{fontspec}
+\setmainfont{SourceSans3}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Semibold,
+  ItalicFont=*-RegularIt, BoldItalicFont=*-SemiboldIt]
+\setmonofont{SourceCodePro}[Extension=.otf, UprightFont=*-Regular, BoldFont=*-Semibold,
+  Scale=MatchLowercase]
+\usepackage{microtype}
+\usepackage[table]{xcolor}
+\definecolor{brandyellow}{HTML}{FFC223}
+\definecolor{brandgold}{HTML}{806112}
+\definecolor{codebg}{HTML}{F5F5F2}
+\definecolor{rulegray}{HTML}{BBBBBB}
+\usepackage{graphicx,calc,array,longtable,booktabs,tabularx,enumitem,etoolbox}
+\usepackage{fancyhdr,titlesec,caption,float}
+\usepackage{fvextra}
+\usepackage{tikz,pgfplots,pgfplotstable}
+\usetikzlibrary{positioning,calc,shapes.misc}
+\pgfplotsset{compat=1.18, every axis/.append style={font=\small},
+  /pgf/number format/assume math mode=true}% numbers in the text font
+\usepackage{xurl}
+\usepackage[colorlinks,linkcolor=black,urlcolor=brandgold,
+  pdftitle={Canimal CAN-USB: Datasheet and User Guide},pdfauthor={Canimal Systems Inc.},
+  pdfcreator={},pdfproducer={}]{hyperref}
+
+\urlstyle{same}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55em}
+\setlength{\emergencystretch}{3em}
+\setlist{nosep,topsep=0.3em,leftmargin=1.4em}
+% Macros pandoc's LaTeX output expects (from its default template).
+\newcounter{none}% unnumbered tables
+\makeatletter
+\protected\def\pandocfootnotemark#1{\footnotemark{}%
+  \expandafter\xdef\csname pandoc@fn@#1\endcsname{%
+    \noexpand\pandoc@fnrestore
+    {\unexpanded\expandafter{\@thefnmark}}%
+    {\ifdefined\Hy@footnote@currentHref
+       \unexpanded\expandafter{\Hy@footnote@currentHref}\fi}}}
+\def\pandoc@fnrestore#1#2{%
+  \gdef\@thefnmark{#1}%
+  \ifdefined\Hy@footnote@currentHref\gdef\Hy@footnote@currentHref{#2}\fi}
+\newcommand\pandocfootnotetext[1]{%
+  \csname pandoc@fn@#1\endcsname\@footnotetext}
+\makeatother
+\providecommand{\tightlist}{\setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\captionsetup{font=small,labelfont=bf,justification=raggedright,singlelinecheck=false}
+\renewcommand{\arraystretch}{1.25}
+
+% Code from the docs pages: framed monospace, long lines wrap.
+\DefineVerbatimEnvironment{codeblock}{Verbatim}{fontsize=\small,breaklines,breakanywhere,
+  frame=leftline,framerule=2.5pt,rulecolor=\color{brandyellow},bgcolor=codebg,
+  bgcolorpadding=4pt,xleftmargin=6pt}
+\DefineVerbatimEnvironment{outputblock}{Verbatim}{fontsize=\small,breaklines,breakanywhere,
+  frame=single,framerule=0.4pt,rulecolor=\color{rulegray},framesep=4pt,xleftmargin=4pt}
+
+% Headings
+\titleformat{\chapter}[block]{\normalfont\huge\bfseries}
+  {\colorbox{brandyellow}{\makebox[1.2em]{\thechapter}}\hspace{0.5em}}{0pt}{}
+\titlespacing*{\chapter}{0pt}{0pt}{1.4em}
+\titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{0.7em}{}
+\titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{0.7em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.4em}
+\titlespacing*{\subsection}{0pt}{1.1em}{0.3em}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+% Header and footer on every page after the cover.
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{\ifnum\value{chapter}>0\thechapter\quad\fi#1}{}}
+\fancyhf{}
+\fancyhead[L]{\small\bfseries\DocTitle: \DocSubtitle}
+\fancyhead[R]{\small\leftmark}
+\fancyfoot[L]{\footnotesize\VersionLine}
+\fancyfoot[R]{\footnotesize Page \thepage}
+\renewcommand{\headrule}{{\color{brandyellow}\hrule height 1.5pt}}
+\renewcommand{\footrulewidth}{0.4pt}
+\fancypagestyle{plain}{}
+
+\begin{document}
+
+% ---- Cover ----
+\begin{titlepage}
+\newgeometry{margin=0.9in}
+\begin{tikzpicture}[remember picture,overlay]
+  \fill[brandyellow] (current page.north west) rectangle ([yshift=-0.35in]current page.north east);
+  \fill[black] (current page.south west) rectangle ([yshift=0.55in]current page.south east);
+  \node[anchor=south,text=white,font=\small] at ([yshift=0.2in]current page.south)
+    {docs.canimal.io \quad\textperiodcentered\quad canimal.io};
+\end{tikzpicture}
+\vspace*{0.1in}
+\begin{minipage}[c]{0.75in}\includegraphics[width=\linewidth]{\Brandmark}\end{minipage}%
+\hspace{0.15in}%
+\begin{minipage}[c]{4in}\Large\bfseries Canimal Systems\end{minipage}
+
+\vspace{0.7in}
+{\fontsize{40}{46}\selectfont\bfseries \DocTitle\par}
+\vspace{0.15in}
+{\LARGE \DocSubtitle\par}
+\vspace{0.1in}
+{\large Three-channel CAN to USB adapter with CAN FD on CAN 0\par}
+
+\vfill
+\begin{center}
+  \includegraphics[width=4.6in]{\CoverImage}
+\end{center}
+\vfill
+{\color{brandyellow}\rule{\linewidth}{2pt}}\par
+\VersionLine
+\vspace{0.35in}
+\restoregeometry
+\end{titlepage}
+\setcounter{page}{2}
+
+% ---- Imprint ----
+\thispagestyle{fancy}
+\section*{Relevant products}
+\begin{tabularx}{\linewidth}{@{}lX@{}}
+\toprule
+\textbf{Product} & \textbf{Description} \\
+\midrule
+Canimal CAN-USB & Three-channel CAN to USB adapter: classic CAN on CAN 0, CAN 1 and CAN 2;
+CAN FD on CAN 0. Product page: \url{https://canimal.io/products} \\
+\bottomrule
+\end{tabularx}
+
+\vspace{1.5em}
+\section*{Imprint}
+Canimal Systems Inc.\\
+\url{https://canimal.io}\\
+Documentation: \url{https://docs.canimal.io}
+
+Specifications may change without notice. The online documentation at
+\url{https://docs.canimal.io} is current; this document is generated from it.
+
+This edition: \VersionLine.
+
+\textcopyright\ \DocYear\ Canimal Systems Inc. All rights reserved.
+
+\clearpage
+\tableofcontents
+\markboth{Contents}{}% header without the class's capitals
+
+% ---- Chapters ----
+\chapter{Introduction}
+\input{datasheet/build/guide-intro.tex}
+
+\section{Properties at a glance}
+\begin{itemize}
+  \item Three CAN channels on 9-pin D-Sub connectors (CiA 106), labelled CAN 0, CAN 1 and CAN 2
+  \item CAN 2.0B: standard and extended frames, up to 1 Mbit/s and 8 data bytes
+  \item CAN FD on CAN 0: data phase up to 8 Mbit/s, up to 64 data bytes (firmware 0.1.3 and later)
+  \item High-speed CAN, ISO 11898-2
+  \item Software-selectable 120\,Ω termination on each channel
+  \item USB 2.0 High Speed (480 Mbit/s) over USB-C; powered from USB, no external supply
+  \item Linux: SocketCAN with the in-kernel \texttt{gs\_usb} driver, no extra driver; works with
+        can-utils and python-can
+  \item Non-isolated ground; ground isolation available on request
+  \item Operating temperature 0\,°C to 70\,°C ambient
+  \item Size 140.00 × 104.50 × 36.50 mm (5.51 × 4.11 × 1.44 in)
+\end{itemize}
+
+\section{Block diagram}
+\begin{figure}[H]
+  \centering
+  \input{datasheet/figures/block-diagram.tex}
+  \caption{CAN-USB block diagram. Each channel has its own transceiver and a 120\,Ω terminator
+    switched by software, with a TERM indicator next to the channel's TX and RX indicators.}
+\end{figure}
+
+\chapter{Connectors and channels}
+\input{datasheet/build/guide-connectors.tex}
+\begin{figure}[H]
+  \centering
+  \input{datasheet/figures/dsub9-pinout.tex}
+  \caption{9-pin D-Sub connector (male, pin side) with the CiA 106 CAN pins. Each of CAN 0,
+    CAN 1 and CAN 2 has one.}
+\end{figure}
+
+\chapter{User guide}
+\input{datasheet/build/guide-linux.tex}
+
+\chapter{Technical specifications}
+\input{datasheet/build/specs.tex}
+
+\section{Maximum bit rate per channel}
+\begin{figure}[H]
+  \centering
+  \input{datasheet/figures/max-bitrate.tex}
+  \caption{Maximum bit rate per channel, from the data rates above.}
+\end{figure}
+
+\section{Bus limit}
+\input{datasheet/figures/bus-limit.tex}
+
+% ---- Appendices ----
+\appendix
+\chapter{Dimension drawing}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\linewidth]{public/assets/img/can-usb/can-usb-dimensions.jpg}
+  \caption{CAN-USB, top view. Width 140.00 mm (5.51 in), length 104.50 mm (4.11 in),
+    height 36.50 mm (1.44 in).}
+\end{figure}
+
+\chapter{Quick reference}
+Linux commands from the user guide. Replace \texttt{can0} with the channel you use. Change bit rate,
+termination or FD mode only while the interface is down.
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.35}
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.27\linewidth}>{\raggedright\arraybackslash}p{0.7\linewidth}@{}}
+\toprule
+\textbf{Task} & \textbf{Command} \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Check the adapter is detected & \texttt{lsusb -d 1d50:606f}\newline \texttt{ip -brief link show type can} \\
+Install can-utils (Debian, Ubuntu) & \texttt{sudo apt install can-utils} \\
+Interface down / up & \texttt{sudo ip link set can0 down}\newline \texttt{sudo ip link set can0 up} \\
+Set the bit rate (500 kbit/s) & \texttt{sudo ip link set can0 type can bitrate 500000} \\
+State and error counters & \texttt{ip -details -statistics link show can0} \\
+Show termination & \texttt{ip -details link show dev can0} \\
+Termination on & \texttt{sudo ip link set dev can0 type can termination 120} \\
+Termination off & \texttt{sudo ip link set dev can0 type can termination 0} \\
+CAN FD, CAN 0 only (500 kbit/s, 2 Mbit/s data) & \texttt{sudo ip link set can0 type can bitrate 500000 dbitrate 2000000 fd on} \\
+Receive & \texttt{candump can0}\newline \texttt{candump -x can0}\quad (shows BRS and ESI flags) \\
+Send a standard frame & \texttt{cansend can0 123\#DEADBEEF} \\
+Send an extended frame & \texttt{cansend can0 12345678\#1122334455} \\
+Send a remote (RTR) frame & \texttt{cansend can0 123\#R} \\
+Send a CAN FD frame with BRS & \texttt{cansend can0 123\#\#1DEADBEEF} \\
+\end{longtable}
+\endgroup
+
+Full instructions: \url{https://docs.canimal.io/products/can_to_usb/can_to_usb_guide/}
+
+\end{document}

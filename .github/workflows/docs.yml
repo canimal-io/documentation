@@ -26,6 +26,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm install --global npm@11.19.0
+      - name: PDF datasheet (the site links to it)
+        run: datasheet/build.sh
       - name: Two clean installs/builds with lock and output reproducibility checks
         run: npm run test:reproducibility
       - run: npm audit --audit-level=low
@@ -38,6 +40,7 @@ jobs:
           name: docs-review
           path: |
             dist/
+            public/assets/pdf/canimal-can-usb-datasheet.pdf
             playwright-report/
             test-results/
           retention-days: 14
@@ -61,6 +64,7 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm install --global npm@11.19.0
+      - run: datasheet/build.sh
       - run: npm ci && npm run build && npm test
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0

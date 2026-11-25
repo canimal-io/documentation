@@ -5,3 +5,5 @@ dist-dryrun/
 .astro/
 playwright-report/
 test-results/
+datasheet/build/
+public/assets/pdf/
