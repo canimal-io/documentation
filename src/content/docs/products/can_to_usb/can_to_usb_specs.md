@@ -35,7 +35,7 @@ slug: "products/can_to_usb/can_to_usb_specs"
 
 ### Connection Interface
 
-- D-Sub 9-pin connector in accordance with CiA® 106 standards.
+- 9-pin D-Sub (male) connector in accordance with CiA® 106 standards.
 
 ### Ground Isolation
 

@@ -1,5 +1,0 @@
-channel,mbps
-CAN 2 (classic CAN),1
-CAN 1 (classic CAN),1
-CAN 0 arbitration and classic CAN,1
-CAN 0 CAN FD data phase,8

@@ -38,12 +38,6 @@ if [ ! -d "$B/texmf/tex/latex/pgfplots" ]; then
   rm "$B/pgfplots.zip"
 fi
 
-# Each chart value must still be on the specs page.
-tail -n +2 datasheet/data/max-bitrate.csv | while IFS=, read -r _ mbps; do
-  grep -q "Up to $mbps Mbit/s" "$SRC/can_to_usb_specs.md" ||
-    { echo "datasheet/data/max-bitrate.csv: $mbps Mbit/s is not on the specs page" >&2; exit 1; }
-done
-
 python3 - "$B/version.tex" <<'EOF'
 import json, os, sys
 releases = json.load(open('src/data/firmware/can-usb.json'))['releases']

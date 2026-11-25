@@ -81,8 +81,9 @@ function Pandoc(doc)
     end,
     Link = function(l)
       if l.target:match('^#') then
-        l.target = '#' .. prefix .. '-' .. l.target:sub(2)
-        return l
+        local id = prefix .. '-' .. l.target:sub(2)
+        l.target = '#' .. id
+        return { l, pandoc.Str(' (section '), pandoc.RawInline('latex', '\\ref{' .. id .. '}'), pandoc.Str(')') }
       end
       if l.target:match('^/') then l.target = SITE .. l.target end
       -- Print readers can't click: put the address in a footnote.
