@@ -42,7 +42,27 @@
       "canimal": {
         "file": "/firmware/can-usb/9.9.9/canimal-linux-x86_64",
         "size": 31,
-        "sha256": "d411c5a41db7031cdaecc71d83b865b4765de1ad65548ba6e8ecb5972c245b48"
+        "sha256": "d411c5a41db7031cdaecc71d83b865b4765de1ad65548ba6e8ecb5972c245b48",
+        "others": [
+          {
+            "platform": "macos-arm64",
+            "file": "/firmware/can-usb/9.9.9/canimal-macos-arm64",
+            "size": 28,
+            "sha256": "72a3733b0d9a1107ef9f862b639e610abc0be68d0e88844eb4975eff4a0ce7e0"
+          },
+          {
+            "platform": "macos-x86_64",
+            "file": "/firmware/can-usb/9.9.9/canimal-macos-x86_64",
+            "size": 29,
+            "sha256": "e882838ab81e43a22a9f9181fb44ac5a09f6052400f628f922fcb848c2244a72"
+          },
+          {
+            "platform": "windows-x86_64",
+            "file": "/firmware/can-usb/9.9.9/canimal-windows-x86_64.exe",
+            "size": 35,
+            "sha256": "c461dd6be4a2f6f53665aacbe7b65e1a257fd8881a34ae094b77fd5622dd1e94"
+          }
+        ]
       }
     }
   ]

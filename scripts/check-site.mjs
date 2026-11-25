@@ -108,6 +108,11 @@ function checkManifest(manifest, publicDir) {
       const tool = readFileSync(publicDir + r.canimal.file);
       assert.equal(tool.length, r.canimal.size, `Size mismatch: ${r.canimal.file}`);
       assert.equal(hash(tool), r.canimal.sha256, `SHA-256 mismatch: ${r.canimal.file}`);
+      for (const o of r.canimal.others ?? []) {
+        const other = readFileSync(publicDir + o.file);
+        assert.equal(other.length, o.size, `Size mismatch: ${o.file}`);
+        assert.equal(hash(other), o.sha256, `SHA-256 mismatch: ${o.file}`);
+      }
     }
   }
 }
@@ -215,6 +220,8 @@ for (const patch of [
   { hw_revisions: [] }, { hw_revisions: [1] }, { hw_revisions: undefined },
   { canimal: { file: `/firmware/can-usb/${v0}/other`, size: 1, sha256: '0'.repeat(64) } },
   { canimal: { file: `/firmware/can-usb/${v0}/canimal-linux-x86_64`, size: 0, sha256: '0'.repeat(64) } },
+  { canimal: { file: `/firmware/can-usb/${v0}/canimal-linux-x86_64`, size: 1, sha256: '0'.repeat(64), others: [{ platform: 'macos-arm64', file: `/firmware/can-usb/${v0}/other`, size: 1, sha256: '0'.repeat(64) }] } },
+  { canimal: { file: `/firmware/can-usb/${v0}/canimal-linux-x86_64`, size: 1, sha256: '0'.repeat(64), others: [{ platform: 'plan9', file: `/firmware/can-usb/${v0}/canimal-plan9`, size: 1, sha256: '0'.repeat(64) }] } },
   { min_bootloader: '0.1' }, { min_bootloader: undefined },
 ]) assert.throws(bad(patch), undefined, `Should reject ${JSON.stringify(patch)}`);
 // The built page lists every manifest entry; with none it shows the empty state.
@@ -223,5 +230,6 @@ for (const r of manifest.releases) assert.ok(fw.includes(r.version) && fw.includ
 if (manifest.releases.length === 0) assert.ok(fw.includes('No public release yet; contact support for firmware updates.'));
 const latestTool = selectReleases(manifest).latest?.canimal;
 if (latestTool) assert.ok(fw.includes(latestTool.sha256), 'Page omits the canimal binary');
+for (const o of latestTool?.others ?? []) assert.ok(fw.includes(o.sha256), `Page omits the canimal ${o.platform} binary`);
 assert.ok(!/dfu-util[^\n]* -e\b[^\n]*-D/.test(fw), 'Flash command must not use -e');
 console.log(`PASS: firmware manifest (${manifest.releases.length} releases) and fixture (${fixture.releases.length}) sizes/SHA-256, latest-stable ordering, page lists every entry`);

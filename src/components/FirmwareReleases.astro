@@ -7,6 +7,8 @@ const override = process.env.FIRMWARE_MANIFEST;
 if (override && !isFixtureManifestPath(override)) throw new Error('FIRMWARE_MANIFEST must be under tests/fixtures/');
 const manifest = JSON.parse(readFileSync(override || 'src/data/firmware/can-usb.json', 'utf8'));
 const { latest, older } = selectReleases(manifest);
+const others = latest?.canimal?.others ?? [];
+const labels = { 'macos-arm64': 'macOS, Apple silicon', 'macos-x86_64': 'macOS, Intel', 'windows-x86_64': 'Windows, x64' };
 ---
 {!latest && older.length === 0 && (
   <p><strong>No public release yet; contact support for firmware updates.</strong></p>
@@ -28,8 +30,9 @@ const { latest, older } = selectReleases(manifest);
 )}
 {latest?.canimal && (
   <section class="canimal-tool" aria-labelledby="canimal-tool">
-    <h3 id="canimal-tool">canimal command-line tool (Linux x86-64)</h3>
-    <p>One file, no install. It finds the CAN-USB, captures, sends and updates firmware. Version {latest.version}.</p>
+    <h3 id="canimal-tool">canimal command-line tool</h3>
+    <p>One file, no install, no Python. It finds the CAN-USB, captures, sends and updates firmware. Version {latest.version}.</p>
+    <h4>Linux (x86-64)</h4>
     <dl>
       <dt>File</dt><dd><a href={latest.canimal.file} download>{fileName(latest.canimal.file)}</a></dd>
       <dt>Size</dt><dd>{formatSize(latest.canimal.size)}</dd>
@@ -39,6 +42,33 @@ const { latest, older } = selectReleases(manifest);
     <pre><code>sha256sum canimal-linux-x86_64
 chmod +x canimal-linux-x86_64
 ./canimal-linux-x86_64 --help</code></pre>
+    {others.map(o => (
+      <>
+        <h4>{labels[o.platform]}</h4>
+        <dl>
+          <dt>File</dt><dd><a href={o.file} download>{fileName(o.file)}</a></dd>
+          <dt>Size</dt><dd>{formatSize(o.size)}</dd>
+          <dt>SHA-256</dt><dd><code>{o.sha256}</code></dd>
+        </dl>
+        {o.platform.startsWith('macos') && (
+          <>
+            <p>The macOS files are not signed by Apple yet, so Gatekeeper blocks the first run. Check the download, remove the quarantine flag and run it:</p>
+            <pre><code>shasum -a 256 {fileName(o.file)}
+chmod +x {fileName(o.file)}
+xattr -d com.apple.quarantine {fileName(o.file)}
+./{fileName(o.file)} --help</code></pre>
+          </>
+        )}
+        {o.platform.startsWith('windows') && (
+          <>
+            <p>Check the download in PowerShell, then run it:</p>
+            <pre><code>Get-FileHash {fileName(o.file)} -Algorithm SHA256
+.\{fileName(o.file)} --help</code></pre>
+            <p>Windows needs the WinUSB driver on the CAN-USB before the tool can open it. Install it with <a href="https://zadig.akeo.ie/">Zadig</a> until the device installs without one.</p>
+          </>
+        )}
+      </>
+    ))}
   </section>
 )}
 {older.length > 0 && (

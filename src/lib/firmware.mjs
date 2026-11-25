@@ -52,6 +52,13 @@ export function sitePathError(p, version, what) {
   return null;
 }
 
+// Other platforms of the canimal tool: canimal.others[].platform -> the one file name allowed for it.
+export const TOOL_FILES = {
+  'macos-arm64': 'canimal-macos-arm64',
+  'macos-x86_64': 'canimal-macos-x86_64',
+  'windows-x86_64': 'canimal-windows-x86_64.exe',
+};
+
 export function validateEntry(r) {
   const errors = [];
   if (!SEMVER.test(r.version ?? '')) errors.push(`bad version ${r.version}`);
@@ -75,6 +82,16 @@ export function validateEntry(r) {
     else if (fileName(c.file) !== 'canimal-linux-x86_64') errors.push('canimal.file must be canimal-linux-x86_64');
     if (!Number.isInteger(c.size) || c.size <= 0) errors.push(`bad canimal.size ${c.size}`);
     if (!/^[0-9a-f]{64}$/.test(c.sha256 ?? '')) errors.push('bad canimal.sha256');
+    if (c.others !== undefined && !Array.isArray(c.others)) errors.push('canimal.others must be an array');
+    for (const o of Array.isArray(c.others) ? c.others : []) {
+      const want = TOOL_FILES[o.platform];
+      if (!want) { errors.push(`bad canimal platform ${o.platform}`); continue; }
+      const otherError = sitePathError(o.file, r.version, `canimal ${o.platform} file`);
+      if (otherError) errors.push(otherError);
+      else if (fileName(o.file) !== want) errors.push(`canimal ${o.platform} file must be ${want}`);
+      if (!Number.isInteger(o.size) || o.size <= 0) errors.push(`bad canimal ${o.platform} size ${o.size}`);
+      if (!/^[0-9a-f]{64}$/.test(o.sha256 ?? '')) errors.push(`bad canimal ${o.platform} sha256`);
+    }
   }
   return errors;
 }
