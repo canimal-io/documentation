@@ -104,6 +104,11 @@ function checkManifest(manifest, publicDir) {
     const bytes = readFileSync(file);
     assert.equal(bytes.length, r.size, `Size mismatch: ${r.file}`);
     assert.equal(hash(bytes), r.sha256, `SHA-256 mismatch: ${r.file}`);
+    if (r.canimal) {
+      const tool = readFileSync(publicDir + r.canimal.file);
+      assert.equal(tool.length, r.canimal.size, `Size mismatch: ${r.canimal.file}`);
+      assert.equal(hash(tool), r.canimal.sha256, `SHA-256 mismatch: ${r.canimal.file}`);
+    }
   }
 }
 const manifest = JSON.parse(read('src/data/firmware/can-usb.json'));
@@ -114,6 +119,8 @@ assert.ok(fixture.releases.every(r => r.hw_revisions && r.min_bootloader));
 const picked = selectReleases(fixture);
 assert.equal(picked.latest.version, '9.9.9', 'Latest stable release is not the newest stable version');
 assert.deepEqual(picked.older.map(r => r.version), ['10.0.0-rc1', '9.9.8']);
+assert.ok(picked.latest.canimal, 'Fixture latest release carries the canimal binary');
+assert.throws(() => checkManifest({ ...fixture, releases: [{ ...picked.latest, canimal: { ...picked.latest.canimal, sha256: '0'.repeat(64) } }] }, 'tests/fixtures/firmware/public'));
 // A tampered fixture must fail.
 assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], sha256: '0'.repeat(64) }] }, 'tests/fixtures/firmware/public'));
 assert.throws(() => checkManifest({ ...fixture, releases: [{ ...fixture.releases[0], size: 1 }] }, 'tests/fixtures/firmware/public'));
@@ -206,11 +213,15 @@ for (const patch of [
   { file: `/firmware/can-usb/${v0}/canimal-can-usb-${v0}.signed.bin.sig` },
   { date: '2026-13-45' }, { date: '2026-02-30' }, { date: '2026-1-5' },
   { hw_revisions: [] }, { hw_revisions: [1] }, { hw_revisions: undefined },
+  { canimal: { file: `/firmware/can-usb/${v0}/other`, size: 1, sha256: '0'.repeat(64) } },
+  { canimal: { file: `/firmware/can-usb/${v0}/canimal-linux-x86_64`, size: 0, sha256: '0'.repeat(64) } },
   { min_bootloader: '0.1' }, { min_bootloader: undefined },
 ]) assert.throws(bad(patch), undefined, `Should reject ${JSON.stringify(patch)}`);
 // The built page lists every manifest entry; with none it shows the empty state.
 const fw = load(read('dist/products/can_to_usb/firmware/index.html'))('main').text();
 for (const r of manifest.releases) assert.ok(fw.includes(r.version) && fw.includes(r.sha256), `Page omits ${r.version}`);
 if (manifest.releases.length === 0) assert.ok(fw.includes('No public release yet; contact support for firmware updates.'));
+const latestTool = selectReleases(manifest).latest?.canimal;
+if (latestTool) assert.ok(fw.includes(latestTool.sha256), 'Page omits the canimal binary');
 assert.ok(!/dfu-util[^\n]* -e\b[^\n]*-D/.test(fw), 'Flash command must not use -e');
 console.log(`PASS: firmware manifest (${manifest.releases.length} releases) and fixture (${fixture.releases.length}) sizes/SHA-256, latest-stable ordering, page lists every entry`);
