@@ -52,7 +52,7 @@ chmod +x canimal-linux-x86_64
         </dl>
         {o.platform.startsWith('macos') && (
           <>
-            <p>The macOS files are not signed by Apple yet, so Gatekeeper blocks the first run. Check the download, remove the quarantine flag and run it:</p>
+            <p>The macOS files need macOS 15 or later. They are not signed by Apple yet, so Gatekeeper blocks the first run. Check the download, remove the quarantine flag and run it:</p>
             <pre><code>shasum -a 256 {fileName(o.file)}
 chmod +x {fileName(o.file)}
 xattr -d com.apple.quarantine {fileName(o.file)}
@@ -64,7 +64,7 @@ xattr -d com.apple.quarantine {fileName(o.file)}
             <p>Check the download in PowerShell, then run it:</p>
             <pre><code>Get-FileHash {fileName(o.file)} -Algorithm SHA256
 .\{fileName(o.file)} --help</code></pre>
-            <p>Windows needs the WinUSB driver on the CAN-USB before the tool can open it. Install it with <a href="https://zadig.akeo.ie/">Zadig</a> until the device installs without one.</p>
+            <p>Windows needs the WinUSB driver on the CAN-USB before the tool can open it.</p>
           </>
         )}
       </>
@@ -93,5 +93,6 @@ xattr -d com.apple.quarantine {fileName(o.file)}
 <style>
   .firmware-table { overflow-x: auto; }
   code { overflow-wrap: anywhere; }
+  pre { overflow-x: auto; }
   dt { font-weight: 600; }
 </style>
