@@ -38,7 +38,12 @@
         "A"
       ],
       "min_bootloader": "0.1.0",
-      "notes": "/firmware/can-usb/9.9.9/RELEASE_NOTES.md"
+      "notes": "/firmware/can-usb/9.9.9/RELEASE_NOTES.md",
+      "canimal": {
+        "file": "/firmware/can-usb/9.9.9/canimal-linux-x86_64",
+        "size": 31,
+        "sha256": "d411c5a41db7031cdaecc71d83b865b4765de1ad65548ba6e8ecb5972c245b48"
+      }
     }
   ]
 }

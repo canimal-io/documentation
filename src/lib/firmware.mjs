@@ -67,6 +67,15 @@ export function validateEntry(r) {
   else if (fileName(r.notes) !== 'RELEASE_NOTES.md') errors.push('notes must be RELEASE_NOTES.md');
   if (!Array.isArray(r.hw_revisions) || r.hw_revisions.length === 0 || !r.hw_revisions.every(x => typeof x === 'string' && x)) errors.push('hw_revisions must be a non-empty string array');
   if (!/^\d+\.\d+\.\d+$/.test(r.min_bootloader ?? '')) errors.push(`bad min_bootloader ${r.min_bootloader}`);
+  // The canimal host tool binary is optional: releases before it was published have none.
+  if (r.canimal !== undefined) {
+    const c = r.canimal;
+    const binError = sitePathError(c.file, r.version, 'canimal.file');
+    if (binError) errors.push(binError);
+    else if (fileName(c.file) !== 'canimal-linux-x86_64') errors.push('canimal.file must be canimal-linux-x86_64');
+    if (!Number.isInteger(c.size) || c.size <= 0) errors.push(`bad canimal.size ${c.size}`);
+    if (!/^[0-9a-f]{64}$/.test(c.sha256 ?? '')) errors.push('bad canimal.sha256');
+  }
   return errors;
 }
 

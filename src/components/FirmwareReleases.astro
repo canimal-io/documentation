@@ -26,6 +26,21 @@ const { latest, older } = selectReleases(manifest);
     <p><a href={latest.notes}>Release notes</a></p>
   </section>
 )}
+{latest?.canimal && (
+  <section class="canimal-tool" aria-labelledby="canimal-tool">
+    <h3 id="canimal-tool">canimal command-line tool (Linux x86-64)</h3>
+    <p>One file, no install. It finds the CAN-USB, captures, sends and updates firmware. Version {latest.version}.</p>
+    <dl>
+      <dt>File</dt><dd><a href={latest.canimal.file} download>{fileName(latest.canimal.file)}</a></dd>
+      <dt>Size</dt><dd>{formatSize(latest.canimal.size)}</dd>
+      <dt>SHA-256</dt><dd><code>{latest.canimal.sha256}</code></dd>
+    </dl>
+    <p>Check the download, make it executable and run it:</p>
+    <pre><code>sha256sum canimal-linux-x86_64
+chmod +x canimal-linux-x86_64
+./canimal-linux-x86_64 --help</code></pre>
+  </section>
+)}
 {older.length > 0 && (
   <>
     <h3 id="other-releases">Other releases</h3>
