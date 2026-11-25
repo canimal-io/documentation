@@ -1,0 +1,24 @@
+% 9-pin D-Sub, male, pin side. Pin signals from the user guide's CiA 106 table; other pins unlabelled.
+\begin{tikzpicture}[
+    font=\small, line width=0.7pt,
+    pin/.style={circle, draw, minimum size=0.62cm, inner sep=0pt, font=\footnotesize\bfseries},
+    can/.style={pin, fill=brandyellow, line width=1.1pt},
+    other/.style={pin, fill=white, draw=rulegray, text=black!60},
+    lbl/.style={font=\small\bfseries},
+  ]
+  % Shell and inner face (trapezoid, wider at the top)
+  \draw[rounded corners=10pt, fill=codebg] (-4.1,1.55) -- (4.1,1.55) -- (3.3,-1.55) -- (-3.3,-1.55) -- cycle;
+  \draw[rounded corners=8pt, fill=white] (-3.55,1.1) -- (3.55,1.1) -- (2.85,-1.1) -- (-2.85,-1.1) -- cycle;
+  \foreach \x in {-4.7,4.7} \draw[fill=white] (\x,0) circle (0.3);
+
+  % Pins 1-5 on top, 6-9 below, left to right
+  \foreach \n/\x in {1/-2.4,4/1.2,5/2.4} \node[other] (p\n) at (\x,0.45) {\n};
+  \foreach \n/\x in {6/-1.8,8/0.6,9/1.8} \node[other] (p\n) at (\x,-0.45) {\n};
+  \node[can] (p2) at (-1.2,0.45) {2};
+  \node[can] (p3) at (0,0.45) {3};
+  \node[can] (p7) at (-0.6,-0.45) {7};
+
+  \draw (p2) |- (-3.2,2.2) node[lbl, left] {CAN\_L};
+  \draw (p3) |- (1.6,2.2) node[lbl, right] {CAN\_GND};
+  \draw (p7) -- ++(0,-1.55) node[lbl, below] {CAN\_H};
+\end{tikzpicture}

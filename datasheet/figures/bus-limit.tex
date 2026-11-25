@@ -1,0 +1,54 @@
+% Theoretical maximum frames per second a CAN bus can carry. Computed here, not measured.
+% Worst-case bit stuffing: floor((n-1)/4) stuff bits over the n bits from SOF to the end of the data
+% field. Trailer: CRC delimiter 1, ACK 2, EOF 7, interframe space 3 = 13 bits.
+\pgfmathtruncatemacro\stdstuffed{34 + 8*8}% SOF, 11-bit ID, RTR, IDE, r0, DLC, 8 data bytes, CRC-15
+\pgfmathtruncatemacro\stdbits{\stdstuffed + floor((\stdstuffed - 1)/4) + 13}
+\pgfmathtruncatemacro\extstuffed{54 + 8*8}% the same with a 29-bit ID (SRR, IDE, r1, r0)
+\pgfmathtruncatemacro\extbits{\extstuffed + floor((\extstuffed - 1)/4) + 13}
+% CAN FD, 11-bit ID, BRS on, 64 data bytes. Arbitration phase: SOF to BRS (17 bits) and the trailer.
+% Data phase: ESI, DLC and data (517 bits), their stuff bits, and the CRC field (stuff count 4,
+% CRC-21, 7 fixed stuff bits = 32 bits).
+\pgfmathtruncatemacro\fdarbstuff{floor((17 - 1)/4)}
+\pgfmathtruncatemacro\fdnombits{17 + \fdarbstuff + 13}
+\pgfmathtruncatemacro\fddatabits{517 + floor((17 + 517 - 1)/4) - \fdarbstuff + 32}
+\edef\stdmax{\directlua{tex.sprint(math.floor(1e6 / \stdbits))}}% pgfmath stops at 16383
+\edef\extmax{\directlua{tex.sprint(math.floor(1e6 / \extbits))}}
+\begin{figure}[H]
+  \centering
+  \begin{tikzpicture}
+    \begin{axis}[
+        xmode=log, ymode=log, width=0.9\linewidth, height=8.2cm,
+        xmin=1e4, xmax=1e7, ymin=50, ymax=2e4,
+        xtick={1e4,1e5,1e6,1e7}, xticklabels={10 k,100 k,1 M,10 M},
+        ytick={100,1000,10000}, yticklabels={100,1\,000,10\,000},
+        xlabel={Bit rate (bit/s); for CAN FD, the data-phase bit rate},
+        ylabel={Frames per second},
+        grid=both, grid style={rulegray!50}, major grid style={rulegray},
+        legend pos=south east, legend cell align=left, legend style={font=\small},
+        tick label style={font=\small},
+      ]
+      \addplot[domain=1e4:1e6, samples=2, very thick, black] {x/\stdbits};
+      \addlegendentry{Classic CAN, standard ID, 8 bytes}
+      \addplot[domain=1e4:1e6, samples=2, very thick, black, dashed] {x/\extbits};
+      \addlegendentry{Classic CAN, extended ID, 8 bytes}
+      \addplot[very thick, brandgold, mark=*, mark options={fill=brandyellow, draw=black},
+          nodes near coords={\pgfmathprintnumber[fixed, precision=0, 1000 sep={\,}]{\pgfplotspointmeta}},
+          nodes near coords style={font=\footnotesize, text=black, anchor=north},
+          point meta=rawy]
+        table[x=dbitrate, y expr={1/(\fdnombits/500000 + \fddatabits/\thisrow{dbitrate})}]
+        {datasheet/data/fd-data-rates.csv};
+      \addlegendentry{CAN FD, standard ID, 64 bytes, 500 kbit/s arbitration}
+    \end{axis}
+  \end{tikzpicture}
+  \caption{Bus limit (theoretical), not a measurement of the CAN-USB.}
+\end{figure}
+
+{\small
+\textbf{How this is computed.} Frames per second = bit rate ÷ bits per frame, with worst-case bit
+stuffing (one stuff bit for every 4 bits after the first, over the bits from start of frame to the
+end of the data field) and a 3-bit interframe space. Classic CAN with 8 data bytes: \stdbits\ bits
+with a standard ID and \extbits\ bits with an extended ID, so at most \stdmax\ and \extmax\ frames
+per second at 1 Mbit/s. CAN FD with 64 data bytes and bit-rate switching: \fdnombits\ bits at the
+arbitration bit rate and \fddatabits\ bits at the data bit rate (including the CRC-21 field with its
+fixed stuff bits); the bit-rate switch and CRC delimiter bits are counted at the arbitration rate.
+\par}

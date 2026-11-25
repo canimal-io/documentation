@@ -1,0 +1,35 @@
+% CAN-USB block diagram. Facts: specs page (USB, channels, CAN FD on CAN 0, termination) and the
+% front-panel picture on it (TX, RX and TERM indicators per channel).
+\begin{tikzpicture}[
+    font=\small, >=stealth, line width=0.6pt,
+    blk/.style={draw, rounded corners=2pt, align=center, fill=white},
+    term/.style={draw, rounded corners=2pt, align=center, font=\footnotesize, fill=codebg},
+    conn/.style={draw, align=center, fill=brandyellow, minimum width=1.9cm, minimum height=0.95cm},
+    bus/.style={line width=1.4pt},
+  ]
+  % USB side
+  \node[blk, minimum height=1.6cm, text width=2.5cm] (usb) at (0,-1.9)
+    {\textbf{USB-C} to host\\USB 2.0 High Speed\\480 Mbit/s\\data and power};
+  \node[blk, minimum height=5.3cm, text width=1.9cm] (ctrl) at (3.3,-1.9) {\textbf{Controller}\\[2pt]3 CAN\\channels};
+  \draw[<->, bus] (usb) -- (ctrl);
+  \node[font=\footnotesize, align=center, below=0.15cm of usb] {powered from USB};
+
+  \foreach \ch/\y/\fd in {0/0/{CAN FD}, 1/-1.9/{classic CAN}, 2/-3.8/{classic CAN}} {
+    \node[blk, text width=2.3cm, minimum height=0.95cm] (tr\ch) at (7.0,\y)
+      {Transceiver\\[-1pt]{\footnotesize ISO 11898-2}};
+    \draw[<->, bus] (ctrl.east |- tr\ch) -- node[above, font=\scriptsize] {\fd} (tr\ch);
+    \node[conn] (ds\ch) at (13.0,\y) {\textbf{CAN \ch}\\[-1pt]{\footnotesize D-Sub 9}};
+    \draw[bus] (tr\ch) -- (ds\ch);
+    \node[term, text width=2.6cm] (rt\ch) at (10.0,\y-0.8)
+      {120\,Ω terminator,\\[-1pt]software switched};
+    \node[draw, circle, fill=brandyellow, inner sep=1.6pt, label={[font=\scriptsize]right:TERM}]
+      at ([xshift=0.25cm]rt\ch.east) {};
+    \draw (rt\ch.north) -- (rt\ch.north |- tr\ch);
+    \fill (rt\ch.north |- tr\ch) circle (1.7pt);
+  }
+  \draw[dashed, rounded corners=4pt, rulegray]
+    ([xshift=-0.25cm, yshift=0.55cm]usb.west |- tr0.north) rectangle
+    ([xshift=0.25cm, yshift=-0.95cm]ds2.east |- rt2.south);
+  \node[anchor=south east, font=\footnotesize\bfseries, text=brandgold]
+    at ([xshift=0.25cm, yshift=0.55cm]ds0.east |- tr0.north) {Canimal CAN-USB};
+\end{tikzpicture}
